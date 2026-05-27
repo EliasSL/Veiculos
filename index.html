@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e27">
+    <title>VEÍCULOS UNISP NBO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0e27;
+            --glass: rgba(18, 25, 55, 0.95);
+            --neon-blue: #00f3ff;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffd700;
+            --neon-orange: #ff6b35;
+            --neon-red: #ff3366;
+            --neon-purple: #9d4edd;
+            --text: #ffffff;
+            --text-sec: #b8c5ff;
+        }
+
+        body {
+            font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #0d1233 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--bg), #0d1233);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .splash-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .app {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .header p {
+            font-size: 0.75rem;
+            color: var(--text-sec);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            box-shadow: 0 0 15px rgba(0,243,255,0.3);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .card:active {
+            transform: scale(0.97);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .card h3 {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+
+        .card .count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .card-green .count { color: var(--neon-green); }
+        .card-yellow .count { color: var(--neon-yellow); }
+        .card-orange .count { color: var(--neon-orange); }
+        .card-red .count { color: var(--neon-red); }
+        .card-blue .count { color: var(--neon-blue); }
+
+        .btn {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .form-container {
+            background: var(--glass);
+            border-radius: 20px;
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-sec);
+            font-size: 0.8rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+        }
+
+        .search-bar {
+            background: var(--glass);
+            border-radius: 50px;
+            padding: 8px 15px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-sec);
+        }
+
+        .search-bar button {
+            background: transparent;
+            border: none;
+            color: var(--neon-blue);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--glass);
+            border-radius: 20px;
+            padding: 20px;
+            width: 90%;
+            max-height: 85%;
+            overflow-y: auto;
+        }
+
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--neon-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+            z-index: 1001;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 50px;
+            z-index: 1002;
+            font-weight: bold;
+            animation: fadeOut 3s forwards;
+        }
+
+        .toast-success { background: var(--neon-green); color: #0a0e27; }
+        .toast-error { background: var(--neon-red); color: white; }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        .status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            z-index: 100;
+        }
+
+        .online { background: var(--neon-green); color: var(--bg); }
+        .offline { background: var(--neon-red); color: white; }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            background: var(--glass);
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+        .main-table th, .main-table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            white-space: nowrap;
+        }
+        .main-table th {
+            background: rgba(255,255,255,0.05);
+            color: var(--neon-blue);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-blue);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="splash" id="splash">
+        <div class="splash-logo">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+        </div>
+        <h2 style="margin-top: 15px;">VEÍCULOS UNISP NBO</h2>
+        <p style="margin-top: 8px; color: #b8c5ff;">Carregando...</p>
+    </div>
+
+    <div class="app" id="app">
+        <div class="status online" id="status">🟢 Conectado</div>
+        
+        <div class="header">
+            <h1>🚗 VEÍCULOS UNISP NBO</h1>
+            <p>Sistema de Gerenciamento de Veículos Apreendidos</p>
+        </div>
+
+        <div class="nav-menu">
+            <button id="btn-inicio" class="nav-btn active" onclick="showDashboard()">📊 Início</button>
+            <button id="btn-cadastro" class="nav-btn" onclick="showCadastro()">📝 Cadastrar</button>
+            <button id="btn-restituidos" class="nav-btn" onclick="showRestituidos()">✅ Restituídos</button>
+        </div>
+
+        <div id="content"></div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content" id="modalContent"></div>
+        <button class="btn btn-secondary" onclick="closeModal()" style="margin-top: 15px;">Fechar</button>
+    </div>
+
+    <div class="loading" id="loading"></div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzivVku15SnB95zpdLrUApiiHyoApmtGLQgj7rPhPCAa3NHFNtiHSyMGKraMrIArp9JwQ/exec";
+  let veiculosData = [];
+
+  // Executa a renderização visual imediatamente sem esperar resposta de rede externa
+  document.addEventListener("DOMContentLoaded", function() {
+    showDashboard();
+    removerSplashScreen(); 
+  });
+
+  function showLoading(show) {
+    document.getElementById('loading').style.display = show ? 'block' : 'none';
+  }
+
+  function showToast(msg, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerText = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  function setActiveNav(btnId) {
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    if(document.getElementById(btnId)) document.getElementById(btnId).classList.add('active');
+  }
+
+  function showDashboard() {
+    setActiveNav('btn-inicio');
+    const content = document.getElementById('content');
+    if (!content) return;
+    
+    content.innerHTML = `
+      <div class="cards-grid">
+        <div class="card card-blue" onclick="filtrarGrupoTabela('MOTOCICLETA','COM PLACA')">
+          <div class="card-icon">🏍️</div>
+          <h3>Moto c/ Placa</h3>
+          <div class="count" id="c-motosPlaca">0</div>
+        </div>
+        <div class="card card-yellow" onclick="filtrarGrupoTabela('MOTOCICLETA','SEM PLACA')">
+          <div class="card-icon">🛵</div>
+          <h3>Moto s/ Placa</h3>
+          <div class="count" id="c-motosSemPlaca">0</div>
+        </div>
+        <div class="card card-orange" onclick="filtrarGrupoTabela('CARRO','COM PLACA')">
+          <div class="card-icon">🚗</div>
+          <h3>Carro c/ Placa</h3>
+          <div class="count" id="c-carrosPlaca">0</div>
+        </div>
+        <div class="card card-red" onclick="filtrarGrupoTabela('CARRO','SEM PLACA')">
+          <div class="card-icon">🚘</div>
+          <h3>Carro s/ Placa</h3>
+          <div class="count" id="c-carrosSemPlaca">0</div>
+        </div>
+      </div>
+
+      <div class="search-bar">
+        <input type="text" id="input-busca" placeholder="Buscar por placa, chassi ou lacre...">
+        <button onclick="executarBuscaLocal()">🔍</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Lacre</th><th>Entrada</th><th>Recebedor</th><th>Procedimento</th>
+              <th>Grupo</th><th>Classe</th><th>Placa</th><th>Marca</th><th>Modelo</th>
+              <th>Cor</th><th>Chassi</th><th>Motor</th><th>Imagem</th><th>Nota</th>
+              <th>Saída</th><th>Servidor</th><th>Doc</th><th>Restituído</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-conteudo">
+            <tr><td colspan="19" style="text-align: center; padding: 20px;" id="msg-tabela">Sincronizando dados com servidor...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    const inputBusca = document.getElementById('input-busca');
+    if(inputBusca) inputBusca.addEventListener('input', executarBuscaLocal);
+    
+    // Executa de forma assíncrona isolada. Se falhar, não quebra a interface.
+    setTimeout(buscarDadosPlanilha, 50);
+  }
+
+  function removerSplashScreen() {
+    const splash = document.getElementById("splash");
+    if (splash) {
+      splash.style.opacity = "0";
+      setTimeout(() => { splash.style.style.display = "none"; }, 300);
+    }
+  }
+
+  function buscarDadosPlanilha() {
+    const statusTag = document.getElementById("status");
+    const msgTabela = document.getElementById("msg-tabela");
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "buscar" }),
+      headers: { "Content-Type": "text/plain" }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        veiculosData = res.data;
+        renderizarTabelaVeiculos(veiculosData);
+        atualizarContadoresGerais();
+        if(statusTag) { statusTag.className = "status online"; statusTag.innerText = "🟢 Online"; }
+      } else {
+        throw new Error(res.message);
+      }
+    })
+    .catch(err => {
+      console.warn("Conexão direta bloqueada pelo ambiente local ou Spck:", err);
+      if(statusTag) { statusTag.className = "status offline"; statusTag.innerText = "🔴 Modo Local / GitHub Necessário"; }
+      if(msgTabela) { msgTabela.innerHTML = "Bloqueio de rede detectado no ambiente do editor. Hospede no GitHub Pages para rodar a sincronização."; }
+    });
+  }
+
+  function renderizarTabelaVeiculos(dados) {
+    const container = document.getElementById("tabela-conteudo");
+    if (!container) return;
+
+    const ativos = dados.filter(item => String(item.restituir).toUpperCase() !== 'SIM');
+
+    if (ativos.length === 0) {
+      container.innerHTML = '<tr><td colspan="19" style="text-align: center; padding: 20px;">Nenhum veículo ativo no pátio.</td></tr>';
+      return;
+    }
+
+    container.innerHTML = gerarLinhasTabela(ativos);
+  }
+
+  function gerarLinhasTabela(lista) {
+    return lista.map(veiculo => `
+      <tr onclick="abrirDetalhesVeiculo(${veiculo.id})">
+        <td>${veiculo.id || ''}</td>
+        <td>${veiculo.lacre || ''}</td>
+        <td>${veiculo.dataentrada ? formatarData(veiculo.dataentrada) : ''}</td>
+        <td>${veiculo.recebedor || ''}</td>
+        <td>${veiculo.procedimento || ''}</td>
+        <td>${veiculo.grupo || ''}</td>
+        <td>${veiculo.clase || ''}</td>
+        <td><strong>${veiculo.placa || ''}</strong></td>
+        <td>${veiculo.marca || ''}</td>
+        <td>${veiculo.modelo || ''}</td>
+        <td>${veiculo.cor || ''}</td>
+        <td>${veiculo.chassi || ''}</td>
+        <td>${veiculo.motor || ''}</td>
+        <td>${veiculo.imagem ? `<a href="${veiculo.imagem}" target="_blank" onclick="event.stopPropagation();">Ver</a>` : '-'}</td>
+        <td>${veiculo.nota || ''}</td>
+        <td>${veiculo.datasaida ? formatarData(veiculo.datasaida) : ''}</td>
+        <td>${veiculo.servidor || ''}</td>
+        <td>${veiculo.documento || ''}</td>
+        <td>
+          <span class="badge ${String(veiculo.restituir).toUpperCase() === 'SIM' ? 'badge-green' : 'badge-red'}">
+            ${veiculo.restituir || 'NÃO'}
+          </span>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function atualizarContadoresGerais() {
+    const ativos = veiculosData.filter(item => String(item.restituir).toUpperCase() !== 'SIM');
+    
+    const mP = document.getElementById('c-motosPlaca');
+    const mSP = document.getElementById('c-motosSemPlaca');
+    const cP = document.getElementById('c-carrosPlaca');
+    const cSP = document.getElementById('c-carrosSemPlaca');
+
+    if(mP) mP.innerText = ativos.filter(i => String(i.grupo).toUpperCase() === 'MOTOCICLETA' && String(i.clase).toUpperCase() === 'COM PLACA').length;
+    if(mSP) mSP.innerText = ativos.filter(i => String(i.grupo).toUpperCase() === 'MOTOCICLETA' && String(i.clase).toUpperCase() === 'SEM PLACA').length;
+    if(cP) cP.innerText = ativos.filter(i => String(i.grupo).toUpperCase() === 'CARRO' && String(i.clase).toUpperCase() === 'COM PLACA').length;
+    if(cSP) cSP.innerText = ativos.filter(i => String(i.grupo).toUpperCase() === 'CARRO' && String(i.clase).toUpperCase() === 'SEM PLACA').length;
+  }
+
+  function executarBuscaLocal() {
+    const termo = document.getElementById('input-busca').value.toLowerCase();
+    const filtrados = veiculosData.filter(item => 
+      (item.placa && item.placa.toLowerCase().includes(termo)) ||
+      (item.chassi && item.chassi.toLowerCase().includes(termo)) ||
+      (item.lacre && item.lacre.toString().toLowerCase().includes(termo))
+    );
+    renderizarTabelaVeiculos(filtrados);
+  }
+
+  function filtrarGrupoTabela(grupo, classe) {
+    const filtrados = veiculosData.filter(item => 
+      String(item.grupo).toUpperCase() === grupo && 
+      String(item.clase).toUpperCase() === classe &&
+      String(item.restituir).toUpperCase() !== 'SIM'
+    );
+    const container = document.getElementById("tabela-conteudo");
+    if (container) container.innerHTML = gerarLinhasTabela(filtrados);
+    showToast(`Filtrado por ${grupo} (${classe})`);
+  }
+
+  function showCadastro() {
+    setActiveNav('btn-cadastro');
+    const content = document.getElementById('content');
+    if (!content) return;
+    
+    content.innerHTML = `
+      <div class="form-container">
+        <h3 style="margin-bottom:15px; color:var(--neon-blue);">Novo Cadastro de Veículo</h3>
+        <form id="form-cadastro" onsubmit="salvarNovoCadastro(event)">
+          <div class="form-group"><label>Lacre Número</label><input type="text" id="f-lacre" required></div>
+          <div class="form-group"><label>Data de Entrada</label><input type="date" id="f-dataentrada" required></div>
+          <div class="form-group"><label>Recebedor (Servidor)</label><input type="text" id="f-recebedor" required></div>
+          <div class="form-group"><label>Procedimento (BO / IP / TCO)</label><input type="text" id="f-procedimento" required></div>
+          <div class="form-group">
+            <label>Grupo</label>
+            <select id="f-grupo" required>
+              <option value="MOTOCICLETA">MOTOCICLETA</option>
+              <option value="MOTONETA">MOTONETA</option>
+              <option value="CARRO">CARRO</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Classe</label>
+            <select id="f-clase" required>
+              <option value="COM PLACA">COM PLACA</option>
+              <option value="SEM PLACA">SEM PLACA</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Placa</label><input type="text" id="f-placa"></div>
+          <div class="form-group"><label>Marca</label><input type="text" id="f-marca" required></div>
+          <div class="form-group"><label>Modelo</label><input type="text" id="f-modelo" required></div>
+          <div class="form-group"><label>Cor</label><input type="text" id="f-cor" required></div>
+          <div class="form-group"><label>Chassi</label><input type="text" id="f-chassi"></div>
+          <div class="form-group"><label>Motor</label><input type="text" id="f-motor"></div>
+          <div class="form-group"><label>Observações / Notas</label><input type="text" id="f-nota"></div>
+          <button type="submit" class="btn">Salvar Registro</button>
+        </form>
+      </div>
+    `;
+    
+    if(document.getElementById('f-dataentrada')) {
+        document.getElementById('f-dataentrada').value = new Date().toISOString().split('T')[0];
+    }
+  }
+
+  function salvarNovoCadastro(e) {
+    e.preventDefault();
+    showLoading(true);
+
+    const payload = {
+      action: "salvar",
+      data: {
+        lacre: document.getElementById('f-lacre').value,
+        dataentrada: document.getElementById('f-dataentrada').value,
+        recebedor: document.getElementById('f-recebedor').value,
+        procedimento: document.getElementById('f-procedimento').value,
+        grupo: document.getElementById('f-grupo').value,
+        clase: document.getElementById('f-clase').value,
+        placa: document.getElementById('f-placa').value,
+        marca: document.getElementById('f-marca').value,
+        modelo: document.getElementById('f-modelo').value,
+        cor: document.getElementById('f-cor').value,
+        chassi: document.getElementById('f-chassi').value,
+        motor: document.getElementById('f-motor').value,
+        nota: document.getElementById('f-nota').value,
+        restituir: "NÃO"
+      }
+    };
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "text/plain" }
+    })
+    .then(res => res.json())
+    .then(res => {
+      if(res.success) {
+        showToast(res.message);
+        showDashboard();
+      } else {
+        showToast(res.message, 'error');
+      }
+    })
+    .catch(err => showToast("Erro de comunicação com o servidor", 'error'))
+    .finally(() => showLoading(false));
+  }
+
+  function showRestituidos() {
+    setActiveNav('btn-restituidos');
+    const content = document.getElementById('content');
+    if (!content) return;
+    
+    const listaRestituidos = veiculosData.filter(item => String(item.restituir).toUpperCase() === 'SIM');
+
+    content.innerHTML = `
+      <h3 style="margin-bottom:10px; color:var(--neon-green);">Histórico de Veículos Restituídos</h3>
+      <div class="table-responsive">
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Lacre</th><th>Placa</th><th>Marca/Modelo</th><th>Data Saída</th><th>Documento Liberação</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-restituidos">
+            ${listaRestituidos.length === 0 ? '<tr><td colspan="6" style="text-align: center; padding:20px;">Nenhum veículo restituído até o momento.</td></tr>' : 
+              listaRestituidos.map(v => `
+                <tr>
+                  <td>${v.id}</td>
+                  <td>${v.lacre || ''}</td>
+                  <td><strong>${v.placa || ''}</strong></td>
+                  <td>${v.marca || ''} - ${v.modelo || ''}</td>
+                  <td>${v.datasaida ? formatarData(v.datasaida) : ''}</td>
+                  <td>${v.documento || ''}</td>
+                </tr>
+              `).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function abrirDetalhesVeiculo(id) {
+    const veiculo = veiculosData.find(item => item.id == id);
+    if (!veiculo) return;
+
+    const modal = document.getElementById('modal');
+    const content = document.getElementById('modalContent');
+    if(!modal || !content) return;
+
+    content.innerHTML = `
+      <h3 style="color:var(--neon-blue); margin-bottom:15px;">Ficha Detalhada do Veículo #${id}</h3>
+      <p style="margin-bottom:8px;"><strong>Placa:</strong> ${veiculo.placa || 'SEM PLACA'}</p>
+      <p style="margin-bottom:8px;"><strong>Chassi:</strong> ${veiculo.chassi || '-'}</p>
+      <p style="margin-bottom:8px;"><strong>Marca/Modelo:</strong> ${veiculo.marca || ''} ${veiculo.modelo || ''}</p>
+      <p style="margin-bottom:8px;"><strong>Lacre:</strong> ${veiculo.lacre || '-'}</p>
+      <p style="margin-bottom:15px;"><strong>Procedimento:</strong> ${veiculo.procedimento || '-'}</p>
+      
+      <hr style="border-color:rgba(255,255,255,0.1); margin-bottom:15px;">
+      
+      <h4 style="color:var(--neon-yellow); margin-bottom:10px;">Dar Saída / Restituir Veículo</h4>
+      <div class="form-group"><label>Data de Saída</label><input type="date" id="m-datasaida"></div>
+      <div class="form-group"><label>Servidor Responsável</label><input type="text" id="m-servidor"></div>
+      <div class="form-group"><label>Documento de Liberação</label><input type="text" id="m-documento" placeholder="RG, CNH, Ofício..."></div>
+      
+      <button class="btn" onclick="confirmarRestituicao(${id})" style="background:linear-gradient(135deg, var(--neon-green), #00aa50);">Efetuar Restituição (SIM)</button>
+      <button class="btn" onclick="excluirRegistro(${id})" style="background:var(--neon-red); margin-top:20px;">🚨 Excluir Cadastro Permanente</button>
+    `;
+
+    if(document.getElementById('m-datasaida')) {
+        document.getElementById('m-datasaida').value = new Date().toISOString().split('T')[0];
+    }
+    modal.style.display = "flex";
+  }
+
+  function closeModal() {
+    document.getElementById('modal').style.display = "none";
+  }
+
+  function confirmarRestituicao(id) {
+    const dataSaida = document.getElementById('m-datasaida').value;
+    const servidor = document.getElementById('m-servidor').value;
+    const documento = document.getElementById('m-documento').value;
+
+    if (!dataSaida || !servidor || !documento) {
+      alert("Por favor, preencha todos os campos de liberação!");
+      return;
+    }
+
+    const veiculoOriginal = veiculosData.find(item => item.id == id);
+    if (!veiculoOriginal) return;
+
+    showLoading(true);
+    closeModal();
+
+    const payload = {
+      action: "restituir",
+      id: id,
+      data: {
+        ...veiculoOriginal,
+        restituir: "SIM",
+        datasaida: dataSaida,
+        servidor: servidor,
+        documento: documento
+      }
+    };
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "text/plain" }
+    })
+    .then(res => res.json())
+    .then(res => {
+      showToast(res.message, res.success ? 'success' : 'error');
+      showDashboard();
+    })
+    .catch(() => showToast("Erro ao processar baixa", 'error'))
+    .finally(() => showLoading(false));
+  }
+
+  function excluirRegistro(id) {
+    if (!confirm("Tem certeza absoluta que deseja EXCLUIR permanentemente este veículo do banco de dados?")) return;
+    
+    showLoading(true);
+    closeModal();
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "excluir", id: id }),
+      headers: { "Content-Type": "text/plain" }
+    })
+    .then(res => res.json())
+    .then(res => {
+      showToast(res.message, res.success ? 'success' : 'error');
+      showDashboard();
+    })
+    .catch(() => showToast("Erro ao excluir registro", 'error'))
+    .finally(() => showLoading(false));
+  }
+
+  function formatarData(dataString) {
+    if (!dataString) return "";
+    if (dataString.includes("/")) return dataString.split(" ")[0]; 
+    try {
+      const d = new Date(dataString);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString("pt-BR");
+      }
+    } catch (e) {}
+    return dataString;
+  }
+</script>
+</body>
+</html>
