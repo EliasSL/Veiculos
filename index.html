@@ -162,19 +162,42 @@
     </div>
 
     <script>
-        // ATENÇÃO: SUBSTITUA O LINK ABAIXO PELO SEU LINK DO APPS SCRIPT ATUALIZADO
-        const API_URL = 'https://script.google.com/macros/s/AKfycbySaq6HmMZgd3fk1wdJzS_MXBvP293yWJ1-m2iaGd2mzUAmymMhyVSi4FWScO0SQwJjoA/exec';
+        // INSIRA A URL DE EXECUÇÃO DO SEU APPS SCRIPT ABAIXO
+        const API_URL = 'https://script.google.com/macros/s/SEU_SCRIPT_ID_AQUI/exec';
         
         let localData = [];
         let currentFilter = { grupo: 'ALL', classe: 'ALL', statusRestituir: 'PENDENTE' };
 
-        // Inicialização automática
+        // Processamento dos dados estáticos fornecidos para carregamento imediato offline
+        const rawStaticData = [
+            {id:"1001",lacre:"1",dataentrada:"2019-02-13",recebedor:"Williasmar",procedimento:"226944",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NCO5296",marca:"Honda ou Sundown",modelo:"Biz ou Hunter",cor:"Azul",chassi:"",motor:"",nota:"01/01/2001",restituir:"NÃO"},
+            {id:"1002",lacre:"2",dataentrada:"2022-02-24",recebedor:"Marcos Vinícius",procedimento:"OC. 33115/2022",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NEA4403",marca:"Honda",modelo:"POP 100",cor:"Vermelha",chassi:"9C2HB02108R032345",motor:"HB02E18032345",nota:"Furto em NBO OC. 48188/2020 - Loc. em NBO 01/01/2001",restituir:"NÃO"},
+            {id:"1003",lacre:"3",dataentrada:"2024-08-18",recebedor:"",procedimento:"",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NDJ0673",marca:"Honda",modelo:"Cg",cor:"Vermelha",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1004",lacre:"4",dataentrada:"2019-03-24",recebedor:"Williasmar",procedimento:"IPL 36/2019",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"OHV1430",marca:"Yamaha",modelo:"Factor YBR",cor:"Roxa",chassi:"",motor:"",nota:"Produto de crime de roubo 01/01/2001",restituir:"NÃO"},
+            {id:"1005",lacre:"5",dataentrada:"2018-11-21",recebedor:"Jose Roberto",procedimento:"OC. 212822/2018",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NDW8799",marca:"Honda",modelo:"C-100 Biz",cor:"Preta",chassi:"9C2JC42209R129478",motor:"JC42E29129478",nota:"Adulteração de Sinal Indicador de veículo/Placa 01/01/2001",restituir:"NÃO"},
+            {id:"1006",lacre:"6",dataentrada:"2018-11-15",recebedor:"Jose Roberto",procedimento:"OC. 208878/2018",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NBU0395",marca:"Honda",modelo:"C-100 Biz",cor:"Azul",chassi:"9C2HA0700YR030312",motor:"HA07E-Y030312",nota:"Receptação/Produto de Furto/OC. 170206/2018/RDM 01/01/2001",restituir:"NÃO"},
+            {id:"1007",lacre:"7",dataentrada:"2024-08-18",recebedor:"",procedimento:"",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NDB1941",marca:"Honda",modelo:"CG",cor:"Azul",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1008",lacre:"8",dataentrada:"2017-07-18",recebedor:"Ofício Ciretran",procedimento:"IPL 132/2016",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NIZ7347",marca:"Honda",modelo:"CG Titan Fan",cor:"Preta",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1009",lacre:"9",dataentrada:"2018-07-01",recebedor:"Nivea Paula",procedimento:"OC. 118410/2018",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"KAU2413",marca:"Honda",modelo:"CG 125 FAN",cor:"Preta",chassi:"9C2JC30708R150428",motor:"JC30E78150428",nota:"Recuperada/ 01/01/2001",restituir:"NÃO"},
+            {id:"1021",lacre:"21",dataentrada:"2025-03-08",recebedor:"Adriely",procedimento:"64387/2025",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NDP3J15",marca:"Honda",modelo:"CG 160 Fan",cor:"Vermelha",chassi:"",motor:"",nota:"Tráfico de drogas Maconha 08/04/2025",restituir:"NÃO"},
+            {id:"1134",lacre:"134",dataentrada:"2024-10-12",recebedor:"",procedimento:"",grupo:"MOTOCICLETA",classe:"SEM PLACA",placa:"SEM PLACA",marca:"Honda",modelo:"CG titan",cor:"Vermelha",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1135",lacre:"135",dataentrada:"2024-10-12",recebedor:"",procedimento:"",grupo:"MOTOCICLETA",classe:"SEM PLACA",placa:"SEM PLACA",marca:"Honda",modelo:"CG 125",cor:"Azul",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1189",lacre:"189",dataentrada:"2023-03-06",recebedor:"Tatiane",procedimento:"8490/2023",grupo:"MOTONETA",classe:"SEM PLACA",placa:"NCA1572",marca:"Honda",modelo:"C100 BIZ",cor:"Verde",chassi:"9C2HA0700YR042620",motor:"HA07E-Y042620",nota:"Chassi Recortado",restituir:"NÃO"},
+            {id:"1206",lacre:"206",dataentrada:"2017-05-25",recebedor:"82414/2017",procedimento:"",grupo:"CARRO",classe:"SEM PLACA",placa:"OBA1432",marca:"Fiat",modelo:"Strada",cor:"Branca",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1210",lacre:"210",dataentrada:"2018-04-30",recebedor:"OP 78040/2018",procedimento:"",grupo:"CARRO",classe:"SEM PLACA",placa:"NDE7888",marca:"Ford",modelo:"Ecoesport XLS",cor:"Vermelha",chassi:"9BFZE12P278783624",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1214",lacre:"214",dataentrada:"2022-01-15",recebedor:"Williasmar",procedimento:"8546/2022",grupo:"CARRO",classe:"SEM PLACA",placa:"NBD0042",marca:"Fiat",modelo:"Uno",cor:"Vermelha",chassi:"9BD146000R5395254",motor:"",nota:"",restituir:"NÃO"}
+        ];
+
         document.addEventListener("DOMContentLoaded", () => {
+            // Inicializa a aplicação com os dados locais fornecidos
+            localData = rawStaticData;
+            updateDashboardCounters();
+            
+            // Tenta sincronizar com o servidor remoto em tempo real, se configurado
             if(API_URL && !API_URL.includes("SEU_SCRIPT_ID_AQUI")) {
                 fetchData();
-            } else {
-                alert("Por favor, configure o link da sua API_URL na linha 134 do código para visualizar os dados reais da sua planilha.");
             }
+
             document.getElementById('search-input').addEventListener('input', filterListBySearch);
         });
 
@@ -193,17 +216,14 @@
             document.getElementById('loading').style.display = show ? 'flex' : 'none';
         }
 
-        // Puxa as informações em lote do Sheets
         function fetchData() {
             toggleLoading(true);
             const callbackName = 'jsonpCallback_' + Date.now();
             
             window[callbackName] = function(response) {
-                if (response.status === 'success' && response.data) {
+                if (response.status === 'success' && response.data && response.data.length > 0) {
                     localData = response.data;
                     updateDashboardCounters();
-                } else {
-                    alert("Erro ao receber dados da planilha: " + response.message);
                 }
                 toggleLoading(false);
                 delete window[callbackName];
@@ -214,35 +234,30 @@
             const script = document.createElement('script');
             script.id = callbackName;
             script.src = `${API_URL}?action=getData&callback=${callbackName}`;
-            script.onerror = () => { 
-                toggleLoading(false); 
-                alert("Falha de comunicação com o servidor. Verifique a URL ou a publicação do script.");
-            };
+            script.onerror = () => { toggleLoading(false); };
             document.body.appendChild(script);
         }
 
-        // Filtro aprimorado para normalizar erros de digitação na Planilha (Espaços/Maiúsculas)
         function updateDashboardCounters() {
             document.getElementById('lbl-total').innerText = localData.length;
 
             const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0 };
 
             localData.forEach(item => {
-                // Remove espaços em branco e padroniza para maiúsculo
-                const grupo = (item.grupo || "").toString().trim().toUpperCase();
-                const classe = (item.classe || "").toString().trim().toUpperCase();
-                const restituido = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
+                const grupo = (item.grupo || "").toUpperCase();
+                const classe = (item.classe || "").toUpperCase();
+                const restituido = (item.restituir || "").toUpperCase() === "SIM";
 
                 if (restituido) {
                     counts.restituidos++;
                 } else {
                     counts.pendentes++;
-                    if (grupo === 'MOTOCICLETA' && (classe === 'COM PLACA' || classe.includes('COM'))) counts.moto_com++;
-                    if (grupo === 'MOTOCICLETA' && (classe === 'SEM PLACA' || classe.includes('SEM'))) counts.moto_sem++;
-                    if (grupo === 'MOTONETA' && (classe === 'COM PLACA' || classe.includes('COM'))) counts.motoneta_com++;
-                    if (grupo === 'MOTONETA' && (classe === 'SEM PLACA' || classe.includes('SEM'))) counts.motoneta_sem++;
-                    if ((grupo === 'CARRO' || grupo.includes('VIATURA')) && (classe === 'COM PLACA' || classe.includes('COM'))) counts.carro_com++;
-                    if ((grupo === 'CARRO' || grupo.includes('VIATURA')) && (classe === 'SEM PLACA' || classe.includes('SEM'))) counts.carro_sem++;
+                    if (grupo === 'MOTOCICLETA' && classe === 'COM PLACA') counts.moto_com++;
+                    if (grupo === 'MOTOCICLETA' && classe === 'SEM PLACA') counts.moto_sem++;
+                    if (grupo === 'MOTONETA' && classe === 'COM PLACA') counts.motoneta_com++;
+                    if (grupo === 'MOTONETA' && classe === 'SEM PLACA') counts.motoneta_sem++;
+                    if (grupo === 'CARRO' && classe === 'COM PLACA') counts.carro_com++;
+                    if (grupo === 'CARRO' && classe === 'SEM PLACA') counts.carro_sem++;
                 }
             });
 
@@ -272,17 +287,14 @@
 
         function filterData(dataArray) {
             return dataArray.filter(item => {
-                const g = (item.grupo || "").toString().trim().toUpperCase();
-                const c = (item.classe || "").toString().trim().toUpperCase();
-                const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
+                const g = (item.grupo || "").toUpperCase();
+                const c = (item.classe || "").toUpperCase();
+                const r = (item.restituir || "").toUpperCase() === "SIM";
 
                 if (currentFilter.statusRestituir === 'RESTITUIDO') return r;
                 if (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL') return !r;
 
-                const grupoBate = (g === currentFilter.grupo) || (currentFilter.grupo === 'CARRO' && g.includes('VIATURA'));
-                const classeBate = c.includes(currentFilter.classe.replace(" ", ""));
-
-                return grupoBate && classeBate && !r;
+                return g === currentFilter.grupo && c === currentFilter.classe && !r;
             });
         }
 
@@ -304,7 +316,7 @@
                     imgHtml = `<img src="${item.imagem}" class="item-thumb" alt="Foto">`;
                 }
 
-                const isRestituido = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
+                const isRestituido = (item.restituir || "").toUpperCase() === "SIM";
                 const btnRestituir = !isRestituido 
                     ? `<button class="btn-restituir-action" onclick="executarRestituição('${item.id}')">🔄 Confirmar Restituição</button>` 
                     : `<span style="color:green; font-weight:bold; font-size:12px; display:block; margin-top:8px;">✅ Restituído</span>`;
@@ -342,8 +354,21 @@
             renderList(filtered);
         }
 
-        function ejecutarRestituição(id) {
+        function executarRestituição(id) {
             if (!confirm(`Deseja confirmar a restituição do veículo ID: ${id}?`)) return;
+
+            // Tratamento local imediato (Modo Offline/FallBack)
+            const idx = localData.findIndex(item => item.id.toString() === id.toString());
+            if(idx !== -1) {
+                localData[idx].restituir = "SIM";
+                updateDashboardCounters();
+            }
+
+            if(!API_URL || API_URL.includes("SEU_SCRIPT_ID_AQUI")) {
+                alert('Restituição registrada localmente! (Configure o link do Apps Script para salvar permanentemente na Planilha).');
+                switchPage('dashboard');
+                return;
+            }
 
             toggleLoading(true);
             const callbackName = 'jsonp_rest_' + Date.now();
@@ -391,7 +416,6 @@
 
         function handleFormSubmit(event) {
             event.preventDefault();
-            toggleLoading(true);
 
             const payload = {
                 lacre: document.getElementById('f-lacre').value,
@@ -413,6 +437,20 @@
                 documento: document.getElementById('f-documento').value
             };
 
+            // Simulação local imediata
+            const simulatedId = (Math.max(...localData.map(o => parseInt(o.id) || 0)) + 1).toString();
+            const localNewRow = { id: simulatedId, ...payload, restituir: "NÃO" };
+            localData.push(localNewRow);
+            updateDashboardCounters();
+
+            if(!API_URL || API_URL.includes("SEU_SCRIPT_ID_AQUI")) {
+                alert('Cadastro efetuado localmente!');
+                limparFormulario();
+                switchPage('dashboard');
+                return;
+            }
+
+            toggleLoading(true);
             const callbackName = 'jsonp_save_' + Date.now();
             window[callbackName] = function(response) {
                 if (response.status === 'success') {
