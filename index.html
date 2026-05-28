@@ -19,7 +19,7 @@
         .page { display: none; }
         .page.active { display: block; }
 
-        /* Grid dos Cards - 2 por linha em telas pequenas */
+        /* Grid dos Cards - Ajustado de 2 em 2 para telas mobile */
         .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         .card { background: white; border: 2px solid #5c54a4; border-radius: 12px; padding: 15px 10px; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s; }
         .card:active { transform: scale(0.95); }
@@ -36,25 +36,25 @@
 
         .btn-submit { width: 100%; background: #2a9d8f; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
         
-        /* Janela de Listagem/Visualização */
+        /* Janela de Listagem e Visualização */
         .list-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
         .search-box { flex: 1; display: flex; gap: 4px; }
         .search-box input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
         
         .list-container { display: flex; flex-direction: column; gap: 10px; }
-        .item-card { background: white; border-radius: 8px; padding: 12px; border-left: 5px solid #5c54a4; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .item-card p { font-size: 13px; margin-bottom: 3px; }
+        .item-card { background: white; border-radius: 8px; padding: 12px; border-left: 5px solid #5c54a4; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; }
+        .item-card p { font-size: 13px; margin-bottom: 3px; line-height: 1.4; }
         .item-card strong { color: #5c54a4; }
-        .item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; float: right; margin-left: 10px; background: #eee; }
-        .btn-restituir-action { background: #e76f51; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+        .item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; float: right; margin-left: 10px; background: #eee; border: 1px solid #ddd; }
+        .btn-restituir-action { background: #e76f51; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 8px; width: 100%; }
         
         /* Loading overlay */
-        #loading { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:1000; justify-content:center; align-items:center; font-weight:bold; color:#5c54a4; }
+        #loading { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.85); z-index:1000; justify-content:center; align-items:center; font-weight:bold; color:#5c54a4; font-size: 16px; }
     </style>
 </head>
 <body>
 
-    <div id="loading">Carregando dados...</div>
+    <div id="loading">Buscando dados da Planilha...</div>
 
     <header>
         <h1>🚗 VEÍCULOS UNISP NBO</h1>
@@ -76,11 +76,11 @@
                 <div class="value" id="card-moto-sem">0</div>
             </div>
             <div class="card" onclick="openList('MOTONETA', 'COM PLACA', false)">
-                <h3>🛵 MOTONETAS COM PLACA</h3>
+                <h3>%09motonetas com placa</h3>
                 <div class="value" id="card-motoneta-com">0</div>
             </div>
             <div class="card" onclick="openList('MOTONETA', 'SEM PLACA', false)">
-                <h3>🛵 MOTONETAS SEM PLACA</h3>
+                <h3>%09motonetas sem placa</h3>
                 <div class="value" id="card-motoneta-sem">0</div>
             </div>
             <div class="card" onclick="openList('CARRO', 'COM PLACA', false)">
@@ -92,11 +92,11 @@
                 <div class="value" id="card-carro-sem">0</div>
             </div>
             <div class="card" onclick="openList('ALL', 'ALL', 'PENDENTE')">
-                <h3>📋 RESTITUIR VEÍCULO</h3>
+                <h3>📋 RESTITUIR</h3>
                 <div class="value" id="card-restituir-p">0</div>
             </div>
             <div class="card" onclick="openList('ALL', 'ALL', 'RESTITUIDO')">
-                <h3>✅ VEÍCULOS RESTITUÍDOS</h3>
+                <h3>✅ RESTITUÍDOS</h3>
                 <div class="value" id="card-restituidos-total">0</div>
             </div>
         </div>
@@ -169,22 +169,20 @@
                 <button class="nav-btn" onclick="filterList()">Buscar</button>
             </div>
         </div>
-        <h2 id="list-title" style="font-size:14px; margin-bottom:10px; color:#5c54a4; text-transform:uppercase;">Lista</h2>
+        <h2 id="list-title" style="font-size:14px; margin-bottom:10px; color:#5c54a4; text-transform:uppercase; padding-left: 5px;">Lista</h2>
         <div id="list-container" class="list-container"></div>
     </div>
 
     <script>
-        // COLOQUE AQUI A URL COMPLETA DO SEU WEB APP GERADO NO GOOGLE APPS SCRIPT
+        // URL da API atualizada do seu Web App
         const API_URL = "https://script.google.com/macros/s/AKfycbySaq6HmMZgd3fk1wdJzS_MXBvP293yWJ1-m2iaGd2mzUAmymMhyVSi4FWScO0SQwJjoA/exec";
         
         let localData = [];
         let currentFilter = {};
         let base64Image = "";
 
-        // Inicializador
         window.addEventListener('DOMContentLoaded', () => {
             fetchData();
-            // Atalho para busca em tempo real ao digitar
             document.getElementById('search-input').addEventListener('input', filterList);
         });
 
@@ -198,23 +196,15 @@
             
             document.getElementById(`page-${pageId}`).classList.add('active');
             
-            // Ativa marcação nos botões superiores
             if(pageId === 'dashboard' || pageId === 'cadastrar') {
                 const idx = pageId === 'dashboard' ? 0 : 1;
                 document.querySelectorAll('.nav-buttons .nav-btn')[idx].classList.add('active');
             }
         }
 
-        // Requisição para buscar dados do Sheets
+        // Busca dados na Planilha via requisição POST
         function fetchData() {
             showLoading(true);
-            fetch(API_URL, {
-                method: "POST",
-                mode: "no-cors", // Define compatibilidade para requisições cross-origin no Apps Script
-                body: JSON.stringify({ action: "getData" })
-            })
-            /* Como usamos no-cors, faremos uma chamada paralela padrão para capturar a resposta tratada, 
-               ou se preferir usar o padrão nativo com CORS habilitado pelo header do script: */
             fetch(API_URL, {
                 method: "POST",
                 body: JSON.stringify({ action: "getData" })
@@ -230,7 +220,8 @@
                 showLoading(false);
             })
             .catch(err => {
-                console.error(err);
+                console.error("Erro na requisição:", err);
+                alert("Erro de conexão com o Web App. Verifique a publicação do script.");
                 showLoading(false);
             });
         }
@@ -238,18 +229,16 @@
         function renderDashboard() {
             document.getElementById('lbl-total').innerText = localData.length;
 
-            // Filtros de contagem para os cards (Apenas onde restituir for igual a NÃO)
-            const motosCom = localData.filter(i => i.grupo === 'MOTOCICLETA' && i.classe === 'COM PLACA' && i.restituir !== 'SIM').length;
-            const motosSem = localData.filter(i => i.grupo === 'MOTOCICLETA' && i.classe === 'SEM PLACA' && i.restituir !== 'SIM').length;
-            const motonetasCom = localData.filter(i => i.grupo === 'MOTONETA' && i.classe === 'COM PLACA' && i.restituir !== 'SIM').length;
-            const motonetasSem = localData.filter(i => i.grupo === 'MOTONETA' && i.classe === 'SEM PLACA' && i.restituir !== 'SIM').length;
-            const carrosCom = localData.filter(i => i.grupo === 'CARRO' && i.classe === 'COM PLACA' && i.restituir !== 'SIM').length;
-            const carrosSem = localData.filter(i => i.grupo === 'CARRO' && i.classe === 'SEM PLACA' && i.restituir !== 'SIM').length;
+            // Filtros exatos respeitando a regra de visualização (Apenas os que estão com Restituir = "NÃO")
+            const motosCom = localData.filter(i => String(i.grupo).toUpperCase() === 'MOTOCICLETA' && String(i.classe).toUpperCase() === 'COM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
+            const motosSem = localData.filter(i => String(i.grupo).toUpperCase() === 'MOTOCICLETA' && String(i.classe).toUpperCase() === 'SEM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
+            const motonetasCom = localData.filter(i => String(i.grupo).toUpperCase() === 'MOTONETA' && String(i.classe).toUpperCase() === 'COM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
+            const motonetasSem = localData.filter(i => String(i.grupo).toUpperCase() === 'MOTONETA' && String(i.classe).toUpperCase() === 'SEM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
+            const carrosCom = localData.filter(i => String(i.grupo).toUpperCase() === 'CARRO' && String(i.classe).toUpperCase() === 'COM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
+            const carrosSem = localData.filter(i => String(i.grupo).toUpperCase() === 'CARRO' && String(i.classe).toUpperCase() === 'SEM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
             
-            // Card 7: Quantidade com pendência (Poderia listar todos para gerenciar a restituição)
-            const pendentesRestituir = localData.filter(i => i.restituir !== 'SIM').length;
-            // Card 8: Apenas os que já foram Restituídos (restituir = SIM)
-            const restituidos = localData.filter(i => i.restituir === 'SIM').length;
+            const pendentesRestituir = localData.filter(i => String(i.restituir).toUpperCase() !== 'SIM').length;
+            const restituidos = localData.filter(i => String(i.restituir).toUpperCase() === 'SIM').length;
 
             document.getElementById('card-moto-com').innerText = motosCom;
             document.getElementById('card-moto-sem').innerText = motosSem;
@@ -261,13 +250,9 @@
             document.getElementById('card-restituidos-total').innerText = restituidos;
         }
 
-        // Gerenciamento de Câmera/Galeria
         function triggerInput(type) {
-            if(type === 'camera') {
-                document.getElementById('input-camera').click();
-            } else {
-                document.getElementById('input-galeria').click();
-            }
+            if(type === 'camera') document.getElementById('input-camera').click();
+            else document.getElementById('input-galeria').click();
         }
 
         function previewMedia(input) {
@@ -277,13 +262,13 @@
                     const imgElement = document.getElementById('preview-img');
                     imgElement.src = e.target.result;
                     imgElement.style.display = 'block';
-                    base64Image = e.target.result; // Salva string base64 da imagem
+                    base64Image = e.target.result;
                 }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // Submissão do Formulário de Cadastro
+        // Envio de novo cadastro
         function handleFormSubmit(event) {
             event.preventDefault();
             showLoading(true);
@@ -319,7 +304,7 @@
                     document.getElementById('form-cadastro').reset();
                     document.getElementById('preview-img').style.display = 'none';
                     base64Image = "";
-                    fetchData(); // Atualiza dados e volta pro Dashboard
+                    fetchData();
                     switchPage('dashboard');
                 } else {
                     alert("Erro ao salvar: " + res.message);
@@ -332,14 +317,14 @@
             });
         }
 
-        // Abertura e Listagem dos Cards
+        // Abre aba de listagem do card correspondente
         function openList(grupo, classe, statusRestituir) {
             currentFilter = { grupo, classe, statusRestituir };
             document.getElementById('search-input').value = "";
             
             let titulo = "";
             if (statusRestituir === 'RESTITUIDO') titulo = "VEÍCULOS RESTITUÍDOS";
-            else if (statusRestituir === 'PENDENTE') titulo = "RESTITUIR VEÍCULO (TODOS)";
+            else if (statusRestituir === 'PENDENTE') titulo = "RESTITUIR VEÍCULO";
             else titulo = `${grupo}s (${classe})`;
 
             document.getElementById('list-title').innerText = titulo;
@@ -347,7 +332,7 @@
             filterList();
         }
 
-        // Executa o filtro com base no card clicado + termo pesquisado
+        // Realiza filtro local e renderiza na tela
         function filterList() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             const container = document.getElementById('list-container');
@@ -355,17 +340,21 @@
 
             let filtered = localData;
 
-            // 1. Filtragem por regras dos Cards
+            // 1. Aplicação das Regras dos Cards
             if (currentFilter.statusRestituir === 'RESTITUIDO') {
-                filtered = filtered.filter(i => i.restituir === 'SIM');
+                filtered = filtered.filter(i => String(i.restituir).toUpperCase() === 'SIM');
             } else if (currentFilter.statusRestituir === 'PENDENTE') {
-                filtered = filtered.filter(i => i.restituir !== 'SIM');
+                filtered = filtered.filter(i => String(i.restituir).toUpperCase() !== 'SIM');
             } else {
-                // Cards de Categorias comuns (Apenas cadastros com Restituir = NÃO)
-                filtered = filtered.filter(i => i.grupo === currentFilter.grupo && i.classe === currentFilter.classe && i.restituir !== 'SIM');
+                // Apenas exibe itens que casam com Grupo/Classe E cuja coluna Restituir seja "NÃO"
+                filtered = filtered.filter(i => 
+                    String(i.grupo).toUpperCase() === currentFilter.grupo && 
+                    String(i.classe).toUpperCase() === currentFilter.classe && 
+                    String(i.restituir).toUpperCase() !== 'SIM'
+                );
             }
 
-            // 2. Filtragem pela barra de Pesquisa (Varre todas as colunas B até S)
+            // 2. Campo de busca global (varre colunas B até S)
             if(query !== "") {
                 filtered = filtered.filter(item => {
                     return Object.values(item).some(val => String(val).toLowerCase().includes(query));
@@ -373,11 +362,11 @@
             }
 
             if(filtered.length === 0) {
-                container.innerHTML = "<p style='text-align:center; padding:20px; color:#999;'>Nenhum registro encontrado.</p>";
+                container.innerHTML = "<p style='text-align:center; padding:20px; color:#999;'>Nenhum veículo encontrado nesta categoria.</p>";
                 return;
             }
 
-            // Renderiza os itens na tela
+            // Construção dinâmica dos elementos de visualização
             filtered.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'item-card';
@@ -388,7 +377,7 @@
                 }
 
                 let btnRestituir = "";
-                if(item.restituir !== 'SIM') {
+                if(String(item.restituir).toUpperCase() !== 'SIM') {
                     btnRestituir = `<button class="btn-restituir-action" onclick="executarRestituicao(${item.id})">🔄 Restituir</button>`;
                 }
 
@@ -396,19 +385,19 @@
                     ${imgTag}
                     <p><strong>ID:</strong> ${item.id} | <strong>Lacre:</strong> ${item.lacre || 'N/A'}</p>
                     <p><strong>Grupo:</strong> ${item.grupo} - ${item.classe}</p>
-                    <p><strong>Placa:</strong> ${item.placa || 'Sem Placa'} | <strong>Marca:</strong> ${item.marca}</p>
-                    <p><strong>Modelo/Cor:</strong> ${item.modelo} / ${item.cor}</p>
-                    <p><strong>Chassi:</strong> ${item.chassi || 'N/A'}</p>
-                    <p><strong>Status:</strong> ${item.restituir || 'NÃO'}</p>
+                    <p><strong>Placa:</strong> ${item.placa || 'Sem Placa'} | <strong>Marca/Modelo:</strong> ${item.marca} ${item.modelo}</p>
+                    <p><strong>Cor:</strong> ${item.cor || 'N/A'} | <strong>Chassi:</strong> ${item.chassi || 'N/A'}</p>
+                    <p><strong>Procedimento:</strong> ${item.procedimento || 'N/A'}</p>
+                    <p><strong>Status Restituir:</strong> ${item.restituir || 'NÃO'}</p>
                     ${btnRestituir}
                 `;
                 container.appendChild(div);
             });
         }
 
-        // Ação de clicar em Restituir e setar "SIM" na planilha
-        function executarRestituicao(id) {
-            if(confirm(`Deseja confirmar a RESTITUIÇÃO do veículo ID: ${id}? (Esta ação mudará o campo para SIM)`)) {
+        // Evento que altera o status na Planilha e move para o 8º card
+        function ejecutarRestituicao(id) {
+            if(confirm(`Deseja marcar o veículo ID: ${id} como RESTITUÍDO? \nIsso alterará a coluna S para SIM e ele irá para o 8º Card.`)) {
                 showLoading(true);
                 fetch(API_URL, {
                     method: "POST",
@@ -418,7 +407,7 @@
                 .then(res => {
                     if(res.status === 'success') {
                         alert(res.message);
-                        fetchData(); // Recarrega os dados atualizados
+                        fetchData();
                         switchPage('dashboard');
                     } else {
                         alert("Erro ao restituir: " + res.message);
