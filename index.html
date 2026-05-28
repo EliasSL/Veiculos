@@ -200,11 +200,11 @@
         function fetchData() {
             showLoading(true);
             
-            // Mudança para o modo 'cors' explícito
+            // Envio simplificado via texto plano evita bloqueio do celular
             fetch(API_URL, {
                 method: "POST",
                 mode: "cors",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "getData" })
             })
             .then(res => res.json())
@@ -219,7 +219,7 @@
             })
             .catch(err => {
                 console.error(err);
-                alert("Erro ao sincronizar dados. Garanta que salvou a nova versão do Script Google.");
+                alert("Erro de conexão com o Web App. Verifique a nova versão do Script.");
                 showLoading(false);
             });
         }
@@ -292,7 +292,7 @@
             fetch(API_URL, {
                 method: "POST",
                 mode: "cors",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify({ action: "saveData", data: payload })
             })
             .then(res => res.json())
@@ -387,13 +387,13 @@
             });
         }
 
-        function executarRestituicao(id) {
+        function ejecutarRestituicao(id) {
             if(confirm(`Deseja marcar o veículo ID: ${id} como RESTITUÍDO?`)) {
                 showLoading(true);
                 fetch(API_URL, {
                     method: "POST",
                     mode: "cors",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    headers: { "Content-Type": "text/plain" },
                     body: JSON.stringify({ action: "restituir", id: id })
                 })
                 .then(res => res.json())
