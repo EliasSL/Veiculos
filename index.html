@@ -221,12 +221,11 @@
                 }
                 showLoading(false);
             }, function() {
-                alert("Erro de conexão com o servidor. Verifique a internet ou o script.");
+                alert("Erro de conexão com o Web App. Verifique a publicação do script.");
                 showLoading(false);
             });
         }
 
-        // Normalizador para evitar conflito de string (caixa alta, baixa e espaços)
         function checkString(val, target) {
             if(!val) return false;
             return String(val).trim().toUpperCase() === String(target).toUpperCase();
@@ -389,7 +388,7 @@
             });
         }
 
-        function executarRestituicao(id) {
+        function ejecutarRestituicao(id) {
             if(confirm(`Deseja marcar o veículo ID: ${id} como RESTITUÍDO?`)) {
                 showLoading(true);
                 const urlWithParams = `${API_URL}?action=restituir&id=${id}`;
