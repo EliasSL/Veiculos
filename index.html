@@ -197,16 +197,32 @@
             }
         }
 
+        // Motor de requisição JSONP blindado contra bloqueios mobile
+        function jsonpRequest(url, successCallback, errorCallback) {
+            const callbackName = 'jsonp_' + Math.round(100000 * Math.random());
+            window[callbackName] = function(data) {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                successCallback(data);
+            };
+
+            const appendChar = url.indexOf('?') === -1 ? '?' : '&';
+            const script = document.createElement('script');
+            script.src = `${url}${appendChar}callback=${callbackName}`;
+            
+            script.onerror = function() {
+                delete window[callbackName];
+                document.body.removeChild(script);
+                if (errorCallback) errorCallback();
+            };
+
+            document.body.appendChild(script);
+        }
+
         function fetchData() {
             showLoading(true);
             
-            // Alterado para GET com parâmetros na URL, eliminando erros de CORS em requisições móveis
-            fetch(`${API_URL}?action=getData`, {
-                method: "GET",
-                mode: "cors"
-            })
-            .then(res => res.json())
-            .then(res => {
+            jsonpRequest(`${API_URL}?action=getData`, function(res) {
                 if(res.status === 'success') {
                     localData = res.data;
                     renderDashboard();
@@ -214,10 +230,8 @@
                     alert("Erro interno: " + res.message);
                 }
                 showLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Erro de conexão com o Web App. Certifique-se de que a nova versão do Script foi publicada.");
+            }, function() {
+                alert("Erro de conexão com o Web App. Verifique a nova versão do Script.");
                 showLoading(false);
             });
         }
@@ -287,15 +301,9 @@
                 documento: document.getElementById('f-documento').value
             };
 
-            // Conversão dos dados estruturados em parâmetros seguros para a URL do GET
             const urlWithParams = `${API_URL}?action=saveData&data=${encodeURIComponent(JSON.stringify(payload))}`;
 
-            fetch(urlWithParams, {
-                method: "GET",
-                mode: "cors"
-            })
-            .then(res => res.json())
-            .then(res => {
+            jsonpRequest(urlWithParams, function(res) {
                 if(res.status === 'success') {
                     alert(res.message);
                     document.getElementById('form-cadastro').reset();
@@ -307,10 +315,8 @@
                     alert("Erro ao salvar: " + res.message);
                 }
                 showLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Falha na comunicação ao tentar salvar os dados.");
+            }, function() {
+                alert("Falha de rede ao tentar processar o salvamento.");
                 showLoading(false);
             });
         }
@@ -387,18 +393,13 @@
             });
         }
 
-        function executarRestituicao(id) {
+        function ejecutarRestituicao(id) {
             if(confirm(`Deseja marcar o veículo ID: ${id} como RESTITUÍDO?`)) {
                 showLoading(true);
                 
                 const urlWithParams = `${API_URL}?action=restituir&id=${id}`;
 
-                fetch(urlWithParams, {
-                    method: "GET",
-                    mode: "cors"
-                })
-                .then(res => res.json())
-                .then(res => {
+                jsonpRequest(urlWithParams, function(res) {
                     if(res.status === 'success') {
                         alert(res.message);
                         fetchData();
@@ -407,10 +408,8 @@
                         alert("Erro ao restituir: " + res.message);
                     }
                     showLoading(false);
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert("Falha na comunicação ao tentar processar a restituição.");
+                }, function() {
+                    alert("Falha de rede ao tentar processar a restituição.");
                     showLoading(false);
                 });
             }
