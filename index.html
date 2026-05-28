@@ -162,18 +162,15 @@
     </div>
 
     <script>
-        // ATENÇÃO: SUBSTITUA O LINK ABAIXO PELO SEU LINK DO APPS SCRIPT ATUALIZADO
+        // URL da sua API perfeitamente apontada para o Web App executável
         const API_URL = 'https://script.google.com/macros/s/AKfycbySaq6HmMZgd3fk1wdJzS_MXBvP293yWJ1-m2iaGd2mzUAmymMhyVSi4FWScO0SQwJjoA/exec';
         
         let localData = [];
         let currentFilter = { grupo: 'ALL', classe: 'ALL', statusRestituir: 'PENDENTE' };
 
-        // Inicialização automática
         document.addEventListener("DOMContentLoaded", () => {
             if(API_URL && !API_URL.includes("SEU_SCRIPT_ID_AQUI")) {
                 fetchData();
-            } else {
-                alert("Por favor, configure o link da sua API_URL na linha 134 do código para visualizar os dados reais da sua planilha.");
             }
             document.getElementById('search-input').addEventListener('input', filterListBySearch);
         });
@@ -193,17 +190,16 @@
             document.getElementById('loading').style.display = show ? 'flex' : 'none';
         }
 
-        // Puxa as informações em lote do Sheets
         function fetchData() {
             toggleLoading(true);
             const callbackName = 'jsonpCallback_' + Date.now();
             
             window[callbackName] = function(response) {
-                if (response.status === 'success' && response.data) {
+                if (response && response.status === 'success' && response.data) {
                     localData = response.data;
                     updateDashboardCounters();
                 } else {
-                    alert("Erro ao receber dados da planilha: " + response.message);
+                    alert("Dados recebidos em formato inválido.");
                 }
                 toggleLoading(false);
                 delete window[callbackName];
@@ -216,19 +212,17 @@
             script.src = `${API_URL}?action=getData&callback=${callbackName}`;
             script.onerror = () => { 
                 toggleLoading(false); 
-                alert("Falha de comunicação com o servidor. Verifique a URL ou a publicação do script.");
+                alert("Falha de comunicação com o servidor. Verifique se o Script do Google foi publicado como 'Qualquer pessoa'.");
             };
             document.body.appendChild(script);
         }
 
-        // Filtro aprimorado para normalizar erros de digitação na Planilha (Espaços/Maiúsculas)
         function updateDashboardCounters() {
             document.getElementById('lbl-total').innerText = localData.length;
 
             const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0 };
 
             localData.forEach(item => {
-                // Remove espaços em branco e padroniza para maiúsculo
                 const grupo = (item.grupo || "").toString().trim().toUpperCase();
                 const classe = (item.classe || "").toString().trim().toUpperCase();
                 const restituido = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
@@ -342,19 +336,19 @@
             renderList(filtered);
         }
 
-        function ejecutarRestituição(id) {
+        function executarRestituição(id) {
             if (!confirm(`Deseja confirmar a restituição do veículo ID: ${id}?`)) return;
 
             toggleLoading(true);
             const callbackName = 'jsonp_rest_' + Date.now();
 
             window[callbackName] = function(response) {
-                if (response.status === 'success') {
+                if (response && response.status === 'success') {
                     alert('Veículo restituído com sucesso na planilha!');
                     fetchData();
                     switchPage('dashboard');
                 } else {
-                    alert('Erro no servidor: ' + response.message);
+                    alert('Erro no servidor.');
                     toggleLoading(false);
                 }
                 delete window[callbackName];
@@ -415,13 +409,13 @@
 
             const callbackName = 'jsonp_save_' + Date.now();
             window[callbackName] = function(response) {
-                if (response.status === 'success') {
-                    alert(response.message);
+                if (response && response.status === 'success') {
+                    alert('Salvo com sucesso!');
                     limparFormulario();
                     fetchData();
                     switchPage('dashboard');
                 } else {
-                    alert('Erro ao sincronizar com a planilha: ' + response.message);
+                    alert('Erro ao salvar na planilha.');
                 }
                 toggleLoading(false);
                 delete window[callbackName];
