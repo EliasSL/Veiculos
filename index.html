@@ -39,11 +39,12 @@
         .search-box input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
         
         .list-container { display: flex; flex-direction: column; gap: 10px; }
-        .item-card { background: white; border-radius: 8px; padding: 12px; border-left: 5px solid #5c54a4; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .item-card p { font-size: 13px; margin-bottom: 3px; line-height: 1.4; }
+        .item-card { background: white; border-radius: 8px; padding: 12px; border-left: 5px solid #5c54a4; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; }
+        .item-card p { font-size: 13px; margin-bottom: 3px; line-height: 1.4; color: #333; }
         .item-card strong { color: #5c54a4; }
         .item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; float: right; margin-left: 10px; background: #eee; border: 1px solid #ddd; }
         .btn-restituir-action { background: #e76f51; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 8px; width: 100%; }
+        .btn-restituir-action:hover { background: #c95a3e; }
         
         #loading { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:1000; justify-content:center; align-items:center; font-weight:bold; color:#5c54a4; font-size: 16px; }
     </style>
@@ -61,30 +62,29 @@
         </div>
     </header>
 
-    <!-- DASHBOARD -->
     <div id="page-dashboard" class="page active">
         <div class="cards-grid">
-            <div class="card" onclick="openList('MOTOCICLETA', 'COM PLACA', false)">
+            <div class="card" onclick="openList('MOTOCICLETA', 'COM PLACA', 'PENDENTE')">
                 <h3>🏍️ MOTOCICLETAS COM PLACA</h3>
                 <div class="value" id="card-moto-com">0</div>
             </div>
-            <div class="card" onclick="openList('MOTOCICLETA', 'SEM PLACA', false)">
+            <div class="card" onclick="openList('MOTOCICLETA', 'SEM PLACA', 'PENDENTE')">
                 <h3>🏍️ MOTOCICLETAS SEM PLACA</h3>
                 <div class="value" id="card-moto-sem">0</div>
             </div>
-            <div class="card" onclick="openList('MOTONETA', 'COM PLACA', false)">
+            <div class="card" onclick="openList('MOTONETA', 'COM PLACA', 'PENDENTE')">
                 <h3>🛵 MOTONETAS COM PLACA</h3>
                 <div class="value" id="card-motoneta-com">0</div>
             </div>
-            <div class="card" onclick="openList('MOTONETA', 'SEM PLACA', false)">
+            <div class="card" onclick="openList('MOTONETA', 'SEM PLACA', 'PENDENTE')">
                 <h3>🛵 MOTONETAS SEM PLACA</h3>
                 <div class="value" id="card-motoneta-sem">0</div>
             </div>
-            <div class="card" onclick="openList('CARRO', 'COM PLACA', false)">
+            <div class="card" onclick="openList('CARRO', 'COM PLACA', 'PENDENTE')">
                 <h3>🚗 CARROS COM PLACA</h3>
                 <div class="value" id="card-carro-com">0</div>
             </div>
-            <div class="card" onclick="openList('CARRO', 'SEM PLACA', false)">
+            <div class="card" onclick="openList('CARRO', 'SEM PLACA', 'PENDENTE')">
                 <h3>🚗 CARROS SEM PLACA</h3>
                 <div class="value" id="card-carro-sem">0</div>
             </div>
@@ -99,7 +99,6 @@
         </div>
     </div>
 
-    <!-- CADASTRAR -->
     <div id="page-cadastrar" class="page">
         <form id="form-cadastro" onsubmit="handleFormSubmit(event)">
             <div class="form-group"><label>Lacre</label><input type="text" id="f-lacre" class="form-control"></div>
@@ -151,12 +150,11 @@
         </form>
     </div>
 
-    <!-- LISTAGEM -->
     <div id="page-list" class="page">
         <div class="list-header">
             <button class="nav-btn" onclick="switchPage('dashboard')">⬅️ Voltar</button>
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Pesquisar veículo...">
+                <input type="text" id="search-input" placeholder="Pesquisar placa, modelo, ID...">
             </div>
         </div>
         <h2 id="list-title" style="font-size:14px; margin-bottom:10px; color:#5c54a4; text-transform:uppercase; padding-left: 5px;">Lista</h2>
@@ -164,124 +162,260 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbySaq6HmMZgd3fk1wdJzS_MXBvP293yWJ1-m2iaGd2mzUAmymMhyVSi4FWScO0SQwJjoA/exec";
+        // INSIRA A URL DE EXECUÇÃO DO SEU APPS SCRIPT ABAIXO
+        const API_URL = 'https://script.google.com/macros/s/SEU_SCRIPT_ID_AQUI/exec';
         
         let localData = [];
-        let currentFilter = {};
-        let base64Image = "";
+        let currentFilter = { grupo: 'ALL', classe: 'ALL', statusRestituir: 'PENDENTE' };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            fetchData();
-            document.getElementById('search-input').addEventListener('input', filterList);
+        // Processamento dos dados estáticos fornecidos para carregamento imediato offline
+        const rawStaticData = [
+            {id:"1001",lacre:"1",dataentrada:"2019-02-13",recebedor:"Williasmar",procedimento:"226944",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NCO5296",marca:"Honda ou Sundown",modelo:"Biz ou Hunter",cor:"Azul",chassi:"",motor:"",nota:"01/01/2001",restituir:"NÃO"},
+            {id:"1002",lacre:"2",dataentrada:"2022-02-24",recebedor:"Marcos Vinícius",procedimento:"OC. 33115/2022",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NEA4403",marca:"Honda",modelo:"POP 100",cor:"Vermelha",chassi:"9C2HB02108R032345",motor:"HB02E18032345",nota:"Furto em NBO OC. 48188/2020 - Loc. em NBO 01/01/2001",restituir:"NÃO"},
+            {id:"1003",lacre:"3",dataentrada:"2024-08-18",recebedor:"",procedimento:"",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NDJ0673",marca:"Honda",modelo:"Cg",cor:"Vermelha",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1004",lacre:"4",dataentrada:"2019-03-24",recebedor:"Williasmar",procedimento:"IPL 36/2019",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"OHV1430",marca:"Yamaha",modelo:"Factor YBR",cor:"Roxa",chassi:"",motor:"",nota:"Produto de crime de roubo 01/01/2001",restituir:"NÃO"},
+            {id:"1005",lacre:"5",dataentrada:"2018-11-21",recebedor:"Jose Roberto",procedimento:"OC. 212822/2018",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NDW8799",marca:"Honda",modelo:"C-100 Biz",cor:"Preta",chassi:"9C2JC42209R129478",motor:"JC42E29129478",nota:"Adulteração de Sinal Indicador de veículo/Placa 01/01/2001",restituir:"NÃO"},
+            {id:"1006",lacre:"6",dataentrada:"2018-11-15",recebedor:"Jose Roberto",procedimento:"OC. 208878/2018",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NBU0395",marca:"Honda",modelo:"C-100 Biz",cor:"Azul",chassi:"9C2HA0700YR030312",motor:"HA07E-Y030312",nota:"Receptação/Produto de Furto/OC. 170206/2018/RDM 01/01/2001",restituir:"NÃO"},
+            {id:"1007",lacre:"7",dataentrada:"2024-08-18",recebedor:"",procedimento:"",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NDB1941",marca:"Honda",modelo:"CG",cor:"Azul",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1008",lacre:"8",dataentrada:"2017-07-18",recebedor:"Ofício Ciretran",procedimento:"IPL 132/2016",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NIZ7347",marca:"Honda",modelo:"CG Titan Fan",cor:"Preta",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1009",lacre:"9",dataentrada:"2018-07-01",recebedor:"Nivea Paula",procedimento:"OC. 118410/2018",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"KAU2413",marca:"Honda",modelo:"CG 125 FAN",cor:"Preta",chassi:"9C2JC30708R150428",motor:"JC30E78150428",nota:"Recuperada/ 01/01/2001",restituir:"NÃO"},
+            {id:"1021",lacre:"21",dataentrada:"2025-03-08",recebedor:"Adriely",procedimento:"64387/2025",grupo:"MOTOCICLETA",classe:"COM PLACA",placa:"NDP3J15",marca:"Honda",modelo:"CG 160 Fan",cor:"Vermelha",chassi:"",motor:"",nota:"Tráfico de drogas Maconha 08/04/2025",restituir:"NÃO"},
+            {id:"1134",lacre:"134",dataentrada:"2024-10-12",recebedor:"",procedimento:"",grupo:"MOTOCICLETA",classe:"SEM PLACA",placa:"SEM PLACA",marca:"Honda",modelo:"CG titan",cor:"Vermelha",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1135",lacre:"135",dataentrada:"2024-10-12",recebedor:"",procedimento:"",grupo:"MOTOCICLETA",classe:"SEM PLACA",placa:"SEM PLACA",marca:"Honda",modelo:"CG 125",cor:"Azul",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1189",lacre:"189",dataentrada:"2023-03-06",recebedor:"Tatiane",procedimento:"8490/2023",grupo:"MOTONETA",classe:"SEM PLACA",placa:"NCA1572",marca:"Honda",modelo:"C100 BIZ",cor:"Verde",chassi:"9C2HA0700YR042620",motor:"HA07E-Y042620",nota:"Chassi Recortado",restituir:"NÃO"},
+            {id:"1206",lacre:"206",dataentrada:"2017-05-25",recebedor:"82414/2017",procedimento:"",grupo:"CARRO",classe:"SEM PLACA",placa:"OBA1432",marca:"Fiat",modelo:"Strada",cor:"Branca",chassi:"",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1210",lacre:"210",dataentrada:"2018-04-30",recebedor:"OP 78040/2018",procedimento:"",grupo:"CARRO",classe:"SEM PLACA",placa:"NDE7888",marca:"Ford",modelo:"Ecoesport XLS",cor:"Vermelha",chassi:"9BFZE12P278783624",motor:"",nota:"",restituir:"NÃO"},
+            {id:"1214",lacre:"214",dataentrada:"2022-01-15",recebedor:"Williasmar",procedimento:"8546/2022",grupo:"CARRO",classe:"SEM PLACA",placa:"NBD0042",marca:"Fiat",modelo:"Uno",cor:"Vermelha",chassi:"9BD146000R5395254",motor:"",nota:"",restituir:"NÃO"}
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Inicializa a aplicação com os dados locais fornecidos
+            localData = rawStaticData;
+            updateDashboardCounters();
+            
+            // Tenta sincronizar com o servidor remoto em tempo real, se configurado
+            if(API_URL && !API_URL.includes("SEU_SCRIPT_ID_AQUI")) {
+                fetchData();
+            }
+
+            document.getElementById('search-input').addEventListener('input', filterListBySearch);
         });
-
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'flex' : 'none';
-        }
 
         function switchPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             
-            document.getElementById(`page-${pageId}`).classList.add('active');
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) targetPage.classList.add('active');
             
-            if(pageId === 'dashboard' || pageId === 'cadastrar') {
-                const idx = pageId === 'dashboard' ? 0 : 1;
-                document.querySelectorAll('.nav-buttons .nav-btn')[idx].classList.add('active');
-            }
+            if (pageId === 'dashboard') document.querySelectorAll('.nav-buttons .nav-btn')[0].classList.add('active');
+            if (pageId === 'cadastrar') document.querySelectorAll('.nav-buttons .nav-btn')[1].classList.add('active');
         }
 
-        function jsonpRequest(url, successCallback, errorCallback) {
-            const callbackName = 'jsonp_' + Math.round(100000 * Math.random());
-            window[callbackName] = function(data) {
-                delete window[callbackName];
-                document.body.removeChild(script);
-                successCallback(data);
-            };
-
-            const appendChar = url.indexOf('?') === -1 ? '?' : '&';
-            const script = document.createElement('script');
-            script.src = `${url}${appendChar}callback=${callbackName}`;
-            
-            script.onerror = function() {
-                delete window[callbackName];
-                document.body.removeChild(script);
-                if (errorCallback) errorCallback();
-            };
-
-            document.body.appendChild(script);
+        function toggleLoading(show) {
+            document.getElementById('loading').style.display = show ? 'flex' : 'none';
         }
 
         function fetchData() {
-            showLoading(true);
-            jsonpRequest(`${API_URL}?action=getData`, function(res) {
-                if(res && res.status === 'success') {
-                    localData = res.data || [];
-                    renderDashboard();
-                } else {
-                    alert("Erro ao ler dados: " + (res ? res.message : "Resposta inválida"));
+            toggleLoading(true);
+            const callbackName = 'jsonpCallback_' + Date.now();
+            
+            window[callbackName] = function(response) {
+                if (response.status === 'success' && response.data && response.data.length > 0) {
+                    localData = response.data;
+                    updateDashboardCounters();
                 }
-                showLoading(false);
-            }, function() {
-                alert("Erro de conexão com o Web App. Verifique a publicação do script.");
-                showLoading(false);
+                toggleLoading(false);
+                delete window[callbackName];
+                const el = document.getElementById(callbackName);
+                if(el) el.remove();
+            };
+
+            const script = document.createElement('script');
+            script.id = callbackName;
+            script.src = `${API_URL}?action=getData&callback=${callbackName}`;
+            script.onerror = () => { toggleLoading(false); };
+            document.body.appendChild(script);
+        }
+
+        function updateDashboardCounters() {
+            document.getElementById('lbl-total').innerText = localData.length;
+
+            const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0 };
+
+            localData.forEach(item => {
+                const grupo = (item.grupo || "").toUpperCase();
+                const classe = (item.classe || "").toUpperCase();
+                const restituido = (item.restituir || "").toUpperCase() === "SIM";
+
+                if (restituido) {
+                    counts.restituidos++;
+                } else {
+                    counts.pendentes++;
+                    if (grupo === 'MOTOCICLETA' && classe === 'COM PLACA') counts.moto_com++;
+                    if (grupo === 'MOTOCICLETA' && classe === 'SEM PLACA') counts.moto_sem++;
+                    if (grupo === 'MOTONETA' && classe === 'COM PLACA') counts.motoneta_com++;
+                    if (grupo === 'MOTONETA' && classe === 'SEM PLACA') counts.motoneta_sem++;
+                    if (grupo === 'CARRO' && classe === 'COM PLACA') counts.carro_com++;
+                    if (grupo === 'CARRO' && classe === 'SEM PLACA') counts.carro_sem++;
+                }
+            });
+
+            document.getElementById('card-moto-com').innerText = counts.moto_com;
+            document.getElementById('card-moto-sem').innerText = counts.moto_sem;
+            document.getElementById('card-motoneta-com').innerText = counts.motoneta_com;
+            document.getElementById('card-motoneta-sem').innerText = counts.motoneta_sem;
+            document.getElementById('card-carro-com').innerText = counts.carro_com;
+            document.getElementById('card-carro-sem').innerText = counts.carro_sem;
+            document.getElementById('card-restituir-p').innerText = counts.pendentes;
+            document.getElementById('card-restituidos-total').innerText = counts.restituidos;
+        }
+
+        function openList(grupo, classe, statusRestituir) {
+            currentFilter = { grupo, classe, statusRestituir };
+            
+            let titulo = `${grupo}s (${classe})`;
+            if (statusRestituir === 'PENDENTE' && grupo === 'ALL') titulo = "Restituir Veículo (Pendentes)";
+            if (statusRestituir === 'RESTITUIDO') titulo = "Veículos Já Restituídos";
+            
+            document.getElementById('list-title').innerText = titulo;
+            document.getElementById('search-input').value = ""; 
+            
+            renderList(filterData(localData));
+            switchPage('list');
+        }
+
+        function filterData(dataArray) {
+            return dataArray.filter(item => {
+                const g = (item.grupo || "").toUpperCase();
+                const c = (item.classe || "").toUpperCase();
+                const r = (item.restituir || "").toUpperCase() === "SIM";
+
+                if (currentFilter.statusRestituir === 'RESTITUIDO') return r;
+                if (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL') return !r;
+
+                return g === currentFilter.grupo && c === currentFilter.classe && !r;
             });
         }
 
-        function checkString(val, target) {
-            if (val === undefined || val === null) return false;
-            return String(val).trim().toUpperCase() === String(target).trim().toUpperCase();
+        function renderList(items) {
+            const container = document.getElementById('list-container');
+            container.innerHTML = "";
+
+            if (items.length === 0) {
+                container.innerHTML = "<p style='text-align:center; padding:20px; color:#666;'>Nenhum veículo encontrado nesta seção.</p>";
+                return;
+            }
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+
+                let imgHtml = "";
+                if (item.imagem && item.imagem.startsWith("data:image")) {
+                    imgHtml = `<img src="${item.imagem}" class="item-thumb" alt="Foto">`;
+                }
+
+                const isRestituido = (item.restituir || "").toUpperCase() === "SIM";
+                const btnRestituir = !isRestituido 
+                    ? `<button class="btn-restituir-action" onclick="executarRestituição('${item.id}')">🔄 Confirmar Restituição</button>` 
+                    : `<span style="color:green; font-weight:bold; font-size:12px; display:block; margin-top:8px;">✅ Restituído</span>`;
+
+                card.innerHTML = `
+                    ${imgHtml}
+                    <p><strong>ID / Lacre:</strong> # ${item.id || 'N/A'} | Lacre: ${item.lacre || 'Sem'}</p>
+                    <p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p>
+                    <p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${item.dataentrada || ''}</p>
+                    <p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p>
+                    <p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>
+                    ${btnRestituir}
+                `;
+                container.appendChild(card);
+            });
         }
 
-        function renderDashboard() {
-            if (!localData || !Array.isArray(localData)) return;
+        function filterListBySearch() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const baseData = filterData(localData);
 
-            document.getElementById('lbl-total').innerText = localData.length;
+            if (!query) {
+                renderList(baseData);
+                return;
+            }
 
-            const motosCom = localData.filter(i => checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            const motosSem = localData.filter(i => checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            
-            // Tratamento preventivo para Motoneta (caso venha a existir na base futuramente)
-            const motonetasCom = localData.filter(i => checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            const motonetasSem = localData.filter(i => checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            
-            const carrosCom = localData.filter(i => checkString(i.grupo, 'CARRO') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            const carrosSem = localData.filter(i => checkString(i.grupo, 'CARRO') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            
-            const pendentesRestituir = localData.filter(i => !checkString(i.restituir, 'SIM')).length;
-            const restituidos = localData.filter(i => checkString(i.restituir, 'SIM')).length;
+            const filtered = baseData.filter(item => {
+                return (item.placa || "").toLowerCase().includes(query) ||
+                       (item.modelo || "").toLowerCase().includes(query) ||
+                       (item.marca || "").toLowerCase().includes(query) ||
+                       (item.id || "").toString().includes(query) ||
+                       (item.procedimento || "").toLowerCase().includes(query);
+            });
 
-            document.getElementById('card-moto-com').innerText = motosCom;
-            document.getElementById('card-moto-sem').innerText = motosSem;
-            document.getElementById('card-motoneta-com').innerText = motonetasCom;
-            document.getElementById('card-motoneta-sem').innerText = motonetasSem;
-            document.getElementById('card-carro-com').innerText = carrosCom;
-            document.getElementById('card-carro-sem').innerText = carrosSem;
-            document.getElementById('card-restituir-p').innerText = pendentesRestituir;
-            document.getElementById('card-restituidos-total').innerText = restituidos;
+            renderList(filtered);
         }
+
+        function executarRestituição(id) {
+            if (!confirm(`Deseja confirmar a restituição do veículo ID: ${id}?`)) return;
+
+            // Tratamento local imediato (Modo Offline/FallBack)
+            const idx = localData.findIndex(item => item.id.toString() === id.toString());
+            if(idx !== -1) {
+                localData[idx].restituir = "SIM";
+                updateDashboardCounters();
+            }
+
+            if(!API_URL || API_URL.includes("SEU_SCRIPT_ID_AQUI")) {
+                alert('Restituição registrada localmente! (Configure o link do Apps Script para salvar permanentemente na Planilha).');
+                switchPage('dashboard');
+                return;
+            }
+
+            toggleLoading(true);
+            const callbackName = 'jsonp_rest_' + Date.now();
+
+            window[callbackName] = function(response) {
+                if (response.status === 'success') {
+                    alert('Veículo restituído com sucesso na planilha!');
+                    fetchData();
+                    switchPage('dashboard');
+                } else {
+                    alert('Erro no servidor: ' + response.message);
+                    toggleLoading(false);
+                }
+                delete window[callbackName];
+                const el = document.getElementById(callbackName);
+                if(el) el.remove();
+            };
+
+            const script = document.createElement('script');
+            script.id = callbackName;
+            script.src = `${API_URL}?action=restituir&id=${id}&callback=${callbackName}`;
+            document.body.appendChild(script);
+        }
+
+        let base64Image = "";
 
         function triggerInput(type) {
-            if(type === 'camera') document.getElementById('input-camera').click();
-            else document.getElementById('input-galeria').click();
+            if (type === 'camera') document.getElementById('input-camera').click();
+            if (type === 'galeria') document.getElementById('input-galeria').click();
         }
 
         function previewMedia(input) {
-            if (input.files && input.files[0]) {
+            const file = input.files[0];
+            if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const imgElement = document.getElementById('preview-img');
-                    imgElement.src = e.target.result;
-                    imgElement.style.display = 'block';
                     base64Image = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
+                    const preview = document.getElementById('preview-img');
+                    preview.src = base64Image;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
             }
         }
 
         function handleFormSubmit(event) {
             event.preventDefault();
-            showLoading(true);
 
             const payload = {
                 lacre: document.getElementById('f-lacre').value,
@@ -303,115 +437,46 @@
                 documento: document.getElementById('f-documento').value
             };
 
-            const urlWithParams = `${API_URL}?action=saveData&data=${encodeURIComponent(JSON.stringify(payload))}`;
+            // Simulação local imediata
+            const simulatedId = (Math.max(...localData.map(o => parseInt(o.id) || 0)) + 1).toString();
+            const localNewRow = { id: simulatedId, ...payload, restituir: "NÃO" };
+            localData.push(localNewRow);
+            updateDashboardCounters();
 
-            jsonpRequest(urlWithParams, function(res) {
-                if(res && res.status === 'success') {
-                    alert(res.message);
-                    document.getElementById('form-cadastro').reset();
-                    document.getElementById('preview-img').style.display = 'none';
-                    base64Image = "";
-                    fetchData();
-                    switchPage('dashboard');
-                } else {
-                    alert("Erro ao salvar: " + (res ? res.message : "Desconhecido"));
-                }
-                showLoading(false);
-            }, function() {
-                alert("Falha de rede ao tentar processar o salvamento.");
-                showLoading(false);
-            });
-        }
-
-        function openList(grupo, classe, statusRestituir) {
-            currentFilter = { grupo, classe, statusRestituir };
-            document.getElementById('search-input').value = "";
-            
-            let titulo = "";
-            if (statusRestituir === 'RESTITUIDO') titulo = "VEÍCULOS RESTITUÍDOS";
-            else if (statusRestituir === 'PENDENTE') titulo = "RESTITUIR VEÍCULO";
-            else titulo = `${grupo}s (${classe})`;
-
-            document.getElementById('list-title').innerText = titulo;
-            switchPage('list');
-            filterList();
-        }
-
-        function filterList() {
-            const query = document.getElementById('search-input').value.toLowerCase().trim();
-            const container = document.getElementById('list-container');
-            container.innerHTML = "";
-
-            let filtered = localData;
-
-            if (currentFilter.statusRestituir === 'RESTITUIDO') {
-                filtered = filtered.filter(i => checkString(i.restituir, 'SIM'));
-            } else if (currentFilter.statusRestituir === 'PENDENTE') {
-                filtered = filtered.filter(i => !checkString(i.restituir, 'SIM'));
-            } else {
-                filtered = filtered.filter(i => 
-                    checkString(i.grupo, currentFilter.grupo) && 
-                    checkString(i.classe, currentFilter.classe) && 
-                    !checkString(i.restituir, 'SIM')
-                );
-            }
-
-            if(query !== "") {
-                filtered = filtered.filter(item => {
-                    return Object.values(item).some(val => String(val).toLowerCase().includes(query));
-                });
-            }
-
-            if(filtered.length === 0) {
-                container.innerHTML = "<p style='text-align:center; padding:20px; color:#999;'>Nenhum veículo nesta categoria.</p>";
+            if(!API_URL || API_URL.includes("SEU_SCRIPT_ID_AQUI")) {
+                alert('Cadastro efetuado localmente!');
+                limparFormulario();
+                switchPage('dashboard');
                 return;
             }
 
-            filtered.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'item-card';
-                
-                let imgTag = "";
-                if(item.imagem && item.imagem.startsWith("data:image")) {
-                    imgTag = `<img src="${item.imagem}" class="item-thumb" onclick="window.open(this.src)">`;
+            toggleLoading(true);
+            const callbackName = 'jsonp_save_' + Date.now();
+            window[callbackName] = function(response) {
+                if (response.status === 'success') {
+                    alert(response.message);
+                    limparFormulario();
+                    fetchData();
+                    switchPage('dashboard');
+                } else {
+                    alert('Erro ao sincronizar com a planilha: ' + response.message);
                 }
+                toggleLoading(false);
+                delete window[callbackName];
+                const el = document.getElementById(callbackName);
+                if(el) el.remove();
+            };
 
-                let btnRestituir = "";
-                if(!checkString(item.restituir, 'SIM')) {
-                    btnRestituir = `<button class="btn-restituir-action" onclick="executarRestituicao(${item.id})">🔄 Restituir</button>`;
-                }
-
-                div.innerHTML = `
-                    ${imgTag}
-                    <p><strong>ID:</strong> ${item.id || 'N/A'} | <strong>Lacre:</strong> ${item.lacre || 'N/A'}</p>
-                    <p><strong>Grupo:</strong> ${item.grupo || 'N/A'} - ${item.classe || 'N/A'}</p>
-                    <p><strong>Placa:</strong> ${item.placa || 'Sem Placa'} | <strong>Marca/Modelo:</strong> ${item.marca || ''} ${item.modelo || ''}</p>
-                    <p><strong>Cor:</strong> ${item.cor || 'N/A'} | <strong>Procedimento:</strong> ${item.procedimento || 'N/A'}</p>
-                    ${btnRestituir}
-                `;
-                container.appendChild(div);
-            });
+            const script = document.createElement('script');
+            script.id = callbackName;
+            script.src = `${API_URL}?action=saveData&data=${encodeURIComponent(JSON.stringify(payload))}&callback=${callbackName}`;
+            document.body.appendChild(script);
         }
 
-        function executarRestituicao(id) {
-            if(confirm(`Deseja marcar o veículo ID: ${id} como RESTITUÍDO?`)) {
-                showLoading(true);
-                const urlWithParams = `${API_URL}?action=restituir&id=${id}`;
-
-                jsonpRequest(urlWithParams, function(res) {
-                    if(res && res.status === 'success') {
-                        alert(res.message);
-                        fetchData();
-                        switchPage('dashboard');
-                    } else {
-                        alert("Erro ao restituir: " + (res ? res.message : "Desconhecido"));
-                    }
-                    showLoading(false);
-                }, function() {
-                    alert("Falha de rede ao tentar processar a restituição.");
-                    showLoading(false);
-                });
-            }
+        function limparFormulario() {
+            document.getElementById('form-cadastro').reset();
+            document.getElementById('preview-img').style.display = 'none';
+            base64Image = "";
         }
     </script>
 </body>
