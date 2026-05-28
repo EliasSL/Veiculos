@@ -204,9 +204,10 @@
                 if(el) el.remove();
             };
 
+            // O cache buster (_nocache=) força o celular a baixar a versão mais nova sempre
             const script = document.createElement('script');
             script.id = callbackName;
-            script.src = `${API_URL}?action=getData&callback=${callbackName}`;
+            script.src = `${API_URL}?action=getData&callback=${callbackName}&_nocache=${Date.now()}`;
             script.onerror = () => { 
                 toggleLoading(false); 
                 alert("Falha de comunicação externa.");
@@ -214,7 +215,6 @@
             document.body.appendChild(script);
         }
 
-        // Filtro Inteligente tolerante a variações ortográficas (Plural/Singular/Espaços)
         function checkGrupo(text, target) {
             const t = (text || "").toString().toLowerCase().trim();
             if (target === 'MOTO') return t.includes('moto') && !t.includes('motoneta');
