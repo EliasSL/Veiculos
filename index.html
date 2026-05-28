@@ -162,16 +162,14 @@
     </div>
 
     <script>
-        // URL da sua API perfeitamente apontada para o Web App executável
+        // URL da sua API apontada corretamente para o Web App executável
         const API_URL = 'https://script.google.com/macros/s/AKfycbySaq6HmMZgd3fk1wdJzS_MXBvP293yWJ1-m2iaGd2mzUAmymMhyVSi4FWScO0SQwJjoA/exec';
         
         let localData = [];
         let currentFilter = { grupo: 'ALL', classe: 'ALL', statusRestituir: 'PENDENTE' };
 
         document.addEventListener("DOMContentLoaded", () => {
-            if(API_URL && !API_URL.includes("SEU_SCRIPT_ID_AQUI")) {
-                fetchData();
-            }
+            fetchData();
             document.getElementById('search-input').addEventListener('input', filterListBySearch);
         });
 
@@ -199,7 +197,7 @@
                     localData = response.data;
                     updateDashboardCounters();
                 } else {
-                    alert("Dados recebidos em formato inválido.");
+                    alert("Dados recebidos em formato inválido ou planilha vazia.");
                 }
                 toggleLoading(false);
                 delete window[callbackName];
@@ -223,9 +221,13 @@
             const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0 };
 
             localData.forEach(item => {
-                const grupo = (item.grupo || "").toString().trim().toUpperCase();
-                const classe = (item.classe || "").toString().trim().toUpperCase();
-                const restituido = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
+                var gRaw = item.grupo || "";
+                var cRaw = item.classe || "";
+                var rRaw = item.restituir || "";
+
+                const grupo = gRaw.toString().trim().toUpperCase();
+                const classe = cRaw.toString().trim().toUpperCase();
+                const restituido = rRaw.toString().trim().toUpperCase() === "SIM";
 
                 if (restituido) {
                     counts.restituidos++;
@@ -266,9 +268,13 @@
 
         function filterData(dataArray) {
             return dataArray.filter(item => {
-                const g = (item.grupo || "").toString().trim().toUpperCase();
-                const c = (item.classe || "").toString().trim().toUpperCase();
-                const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
+                var gRaw = item.grupo || "";
+                var cRaw = item.classe || "";
+                var rRaw = item.restituir || "";
+
+                const g = gRaw.toString().trim().toUpperCase();
+                const c = cRaw.toString().trim().toUpperCase();
+                const r = rRaw.toString().trim().toUpperCase() === "SIM";
 
                 if (currentFilter.statusRestituir === 'RESTITUIDO') return r;
                 if (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL') return !r;
@@ -294,11 +300,12 @@
                 card.className = 'item-card';
 
                 let imgHtml = "";
-                if (item.imagem && item.imagem.startsWith("data:image")) {
+                if (item.imagem && item.imagem.toString().startsWith("data:image")) {
                     imgHtml = `<img src="${item.imagem}" class="item-thumb" alt="Foto">`;
                 }
 
-                const isRestituido = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
+                var rRaw = item.restituir || "";
+                const isRestituido = rRaw.toString().trim().toUpperCase() === "SIM";
                 const btnRestituir = !isRestituido 
                     ? `<button class="btn-restituir-action" onclick="executarRestituição('${item.id}')">🔄 Confirmar Restituição</button>` 
                     : `<span style="color:green; font-weight:bold; font-size:12px; display:block; margin-top:8px;">✅ Restituído</span>`;
@@ -326,11 +333,11 @@
             }
 
             const filtered = baseData.filter(item => {
-                return (item.placa || "").toLowerCase().includes(query) ||
-                       (item.modelo || "").toLowerCase().includes(query) ||
-                       (item.marca || "").toLowerCase().includes(query) ||
+                return (item.placa || "").toString().toLowerCase().includes(query) ||
+                       (item.modelo || "").toString().toLowerCase().includes(query) ||
+                       (item.marca || "").toString().toLowerCase().includes(query) ||
                        (item.id || "").toString().includes(query) ||
-                       (item.procedimento || "").toLowerCase().includes(query);
+                       (item.procedimento || "").toString().toLowerCase().includes(query);
             });
 
             renderList(filtered);
@@ -348,7 +355,7 @@
                     fetchData();
                     switchPage('dashboard');
                 } else {
-                    alert('Erro no servidor.');
+                    alert('Erro ao processar restituição.');
                     toggleLoading(false);
                 }
                 delete window[callbackName];
@@ -410,7 +417,7 @@
             const callbackName = 'jsonp_save_' + Date.now();
             window[callbackName] = function(response) {
                 if (response && response.status === 'success') {
-                    alert('Salvo com sucesso!');
+                    alert(response.message);
                     limparFormulario();
                     fetchData();
                     switchPage('dashboard');
