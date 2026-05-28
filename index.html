@@ -61,6 +61,7 @@
         </div>
     </header>
 
+    <!-- DASHBOARD -->
     <div id="page-dashboard" class="page active">
         <div class="cards-grid">
             <div class="card" onclick="openList('MOTOCICLETA', 'COM PLACA', false)">
@@ -98,6 +99,7 @@
         </div>
     </div>
 
+    <!-- CADASTRAR -->
     <div id="page-cadastrar" class="page">
         <form id="form-cadastro" onsubmit="handleFormSubmit(event)">
             <div class="form-group"><label>Lacre</label><input type="text" id="f-lacre" class="form-control"></div>
@@ -149,12 +151,12 @@
         </form>
     </div>
 
+    <!-- LISTAGEM -->
     <div id="page-list" class="page">
         <div class="list-header">
             <button class="nav-btn" onclick="switchPage('dashboard')">⬅️ Voltar</button>
             <div class="search-box">
                 <input type="text" id="search-input" placeholder="Pesquisar veículo...">
-                <button class="nav-btn" onclick="filterList()">Buscar</button>
             </div>
         </div>
         <h2 id="list-title" style="font-size:14px; margin-bottom:10px; color:#5c54a4; text-transform:uppercase; padding-left: 5px;">Lista</h2>
@@ -213,11 +215,11 @@
         function fetchData() {
             showLoading(true);
             jsonpRequest(`${API_URL}?action=getData`, function(res) {
-                if(res.status === 'success') {
-                    localData = res.data;
+                if(res && res.status === 'success') {
+                    localData = res.data || [];
                     renderDashboard();
                 } else {
-                    alert("Erro ao ler dados: " + res.message);
+                    alert("Erro ao ler dados: " + (res ? res.message : "Resposta inválida"));
                 }
                 showLoading(false);
             }, function() {
@@ -227,37 +229,38 @@
         }
 
         function checkString(val, target) {
-    if (val === undefined || val === null) return false;
-    // Remove espaços extras e joga tudo para maiúsculo antes de comparar
-    return String(val).trim().toUpperCase() === String(target).trim().toUpperCase();
-}
-function renderDashboard() {
-    if (!localData || !Array.isArray(localData)) {
-        document.getElementById('lbl-total').innerText = "0";
-        return;
-    }
+            if (val === undefined || val === null) return false;
+            return String(val).trim().toUpperCase() === String(target).trim().toUpperCase();
+        }
 
-    document.getElementById('lbl-total').innerText = localData.length;
+        function renderDashboard() {
+            if (!localData || !Array.isArray(localData)) return;
 
-    const motosCom = localData.filter(i => i && checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
-    const motosSem = localData.filter(i => i && checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
-    const motonetasCom = localData.filter(i => i && checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
-    const motonetasSem = localData.filter(i => i && checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
-    const carrosCom = localData.filter(i => i && checkString(i.grupo, 'CARRO') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
-    const carrosSem = localData.filter(i => i && checkString(i.grupo, 'CARRO') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
-    
-    const pendentesRestituir = localData.filter(i => i && !checkString(i.restituir, 'SIM')).length;
-    const restituidos = localData.filter(i => i && checkString(i.restituir, 'SIM')).length;
+            document.getElementById('lbl-total').innerText = localData.length;
 
-    document.getElementById('card-moto-com').innerText = motosCom;
-    document.getElementById('card-moto-sem').innerText = motosSem;
-    document.getElementById('card-motoneta-com').innerText = motonetasCom;
-    document.getElementById('card-motoneta-sem').innerText = motonetasSem;
-    document.getElementById('card-carro-com').innerText = carrosCom;
-    document.getElementById('card-carro-sem').innerText = carrosSem;
-    document.getElementById('card-restituir-p').innerText = pendentesRestituir;
-    document.getElementById('card-restituidos-total').innerText = restituidos;
-}
+            const motosCom = localData.filter(i => checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            const motosSem = localData.filter(i => checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            
+            // Tratamento preventivo para Motoneta (caso venha a existir na base futuramente)
+            const motonetasCom = localData.filter(i => checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            const motonetasSem = localData.filter(i => checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            
+            const carrosCom = localData.filter(i => checkString(i.grupo, 'CARRO') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            const carrosSem = localData.filter(i => checkString(i.grupo, 'CARRO') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            
+            const pendentesRestituir = localData.filter(i => !checkString(i.restituir, 'SIM')).length;
+            const restituidos = localData.filter(i => checkString(i.restituir, 'SIM')).length;
+
+            document.getElementById('card-moto-com').innerText = motosCom;
+            document.getElementById('card-moto-sem').innerText = motosSem;
+            document.getElementById('card-motoneta-com').innerText = motonetasCom;
+            document.getElementById('card-motoneta-sem').innerText = motonetasSem;
+            document.getElementById('card-carro-com').innerText = carrosCom;
+            document.getElementById('card-carro-sem').innerText = carrosSem;
+            document.getElementById('card-restituir-p').innerText = pendentesRestituir;
+            document.getElementById('card-restituidos-total').innerText = restituidos;
+        }
+
         function triggerInput(type) {
             if(type === 'camera') document.getElementById('input-camera').click();
             else document.getElementById('input-galeria').click();
@@ -303,7 +306,7 @@ function renderDashboard() {
             const urlWithParams = `${API_URL}?action=saveData&data=${encodeURIComponent(JSON.stringify(payload))}`;
 
             jsonpRequest(urlWithParams, function(res) {
-                if(res.status === 'success') {
+                if(res && res.status === 'success') {
                     alert(res.message);
                     document.getElementById('form-cadastro').reset();
                     document.getElementById('preview-img').style.display = 'none';
@@ -311,7 +314,7 @@ function renderDashboard() {
                     fetchData();
                     switchPage('dashboard');
                 } else {
-                    alert("Erro ao salvar: " + res.message);
+                    alert("Erro ao salvar: " + (res ? res.message : "Desconhecido"));
                 }
                 showLoading(false);
             }, function() {
@@ -380,30 +383,28 @@ function renderDashboard() {
 
                 div.innerHTML = `
                     ${imgTag}
-                    <p><strong>ID:</strong> ${item.id} | <strong>Lacre:</strong> ${item.lacre || 'N/A'}</p>
-                    <p><strong>Grupo:</strong> ${item.grupo} - ${item.classe}</p>
-                    <p><strong>Placa:</strong> ${item.placa || 'Sem Placa'} | <strong>Marca/Modelo:</strong> ${item.marca} ${item.modelo}</p>
-                    <p><strong>Cor:</strong> ${item.cor || 'N/A'} | <strong>Chassi:</strong> ${item.chassi || 'N/A'}</p>
-                    <p><strong>Procedimento:</strong> ${item.procedimento || 'N/A'}</p>
-                    <p><strong>Status Restituir:</strong> ${item.restituir || 'NÃO'}</p>
+                    <p><strong>ID:</strong> ${item.id || 'N/A'} | <strong>Lacre:</strong> ${item.lacre || 'N/A'}</p>
+                    <p><strong>Grupo:</strong> ${item.grupo || 'N/A'} - ${item.classe || 'N/A'}</p>
+                    <p><strong>Placa:</strong> ${item.placa || 'Sem Placa'} | <strong>Marca/Modelo:</strong> ${item.marca || ''} ${item.modelo || ''}</p>
+                    <p><strong>Cor:</strong> ${item.cor || 'N/A'} | <strong>Procedimento:</strong> ${item.procedimento || 'N/A'}</p>
                     ${btnRestituir}
                 `;
                 container.appendChild(div);
             });
         }
 
-        function ejecutarRestituicao(id) {
+        function executarRestituicao(id) {
             if(confirm(`Deseja marcar o veículo ID: ${id} como RESTITUÍDO?`)) {
                 showLoading(true);
                 const urlWithParams = `${API_URL}?action=restituir&id=${id}`;
 
                 jsonpRequest(urlWithParams, function(res) {
-                    if(res.status === 'success') {
+                    if(res && res.status === 'success') {
                         alert(res.message);
                         fetchData();
                         switchPage('dashboard');
                     } else {
-                        alert("Erro ao restituir: " + res.message);
+                        alert("Erro ao restituir: " + (res ? res.message : "Desconhecido"));
                     }
                     showLoading(false);
                 }, function() {
