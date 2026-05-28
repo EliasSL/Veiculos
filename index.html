@@ -64,27 +64,27 @@
 
     <div id="page-dashboard" class="page active">
         <div class="cards-grid">
-            <div class="card" onclick="openList('MOTOCICLETA', 'COM PLACA', 'PENDENTE')">
+            <div class="card" onclick="openList('MOTO', 'COM', 'PENDENTE')">
                 <h3>🏍️ MOTOCICLETAS COM PLACA</h3>
                 <div class="value" id="card-moto-com">0</div>
             </div>
-            <div class="card" onclick="openList('MOTOCICLETA', 'SEM PLACA', 'PENDENTE')">
+            <div class="card" onclick="openList('MOTO', 'SEM', 'PENDENTE')">
                 <h3>🏍️ MOTOCICLETAS SEM PLACA</h3>
                 <div class="value" id="card-moto-sem">0</div>
             </div>
-            <div class="card" onclick="openList('MOTONETA', 'COM PLACA', 'PENDENTE')">
+            <div class="card" onclick="openList('MOTONETA', 'COM', 'PENDENTE')">
                 <h3>🛵 MOTONETAS COM PLACA</h3>
                 <div class="value" id="card-motoneta-com">0</div>
             </div>
-            <div class="card" onclick="openList('MOTONETA', 'SEM PLACA', 'PENDENTE')">
+            <div class="card" onclick="openList('MOTONETA', 'SEM', 'PENDENTE')">
                 <h3>🛵 MOTONETAS SEM PLACA</h3>
                 <div class="value" id="card-motoneta-sem">0</div>
             </div>
-            <div class="card" onclick="openList('CARRO', 'COM PLACA', 'PENDENTE')">
+            <div class="card" onclick="openList('CARRO', 'COM', 'PENDENTE')">
                 <h3>🚗 CARROS COM PLACA</h3>
                 <div class="value" id="card-carro-com">0</div>
             </div>
-            <div class="card" onclick="openList('CARRO', 'SEM PLACA', 'PENDENTE')">
+            <div class="card" onclick="openList('CARRO', 'SEM', 'PENDENTE')">
                 <h3>🚗 CARROS SEM PLACA</h3>
                 <div class="value" id="card-carro-sem">0</div>
             </div>
@@ -162,7 +162,6 @@
     </div>
 
     <script>
-        // URL da sua API apontada corretamente para o Web App executável
         const API_URL = 'https://script.google.com/macros/s/AKfycbySaq6HmMZgd3fk1wdJzS_MXBvP293yWJ1-m2iaGd2mzUAmymMhyVSi4FWScO0SQwJjoA/exec';
         
         let localData = [];
@@ -210,9 +209,25 @@
             script.src = `${API_URL}?action=getData&callback=${callbackName}`;
             script.onerror = () => { 
                 toggleLoading(false); 
-                alert("Falha de comunicação com o servidor. Verifique se o Script do Google foi publicado como 'Qualquer pessoa'.");
+                alert("Falha de comunicação externa.");
             };
             document.body.appendChild(script);
+        }
+
+        // Filtro Inteligente tolerante a variações ortográficas (Plural/Singular/Espaços)
+        function checkGrupo(text, target) {
+            const t = (text || "").toString().toLowerCase().trim();
+            if (target === 'MOTO') return t.includes('moto') && !t.includes('motoneta');
+            if (target === 'MOTONETA') return t.includes('motoneta');
+            if (target === 'CARRO') return t.includes('carro') || t.includes('via') || t.includes('auto');
+            return false;
+        }
+
+        function checkClasse(text, target) {
+            const t = (text || "").toString().toLowerCase().trim();
+            if (target === 'COM') return t.includes('com') && !t.includes('sem');
+            if (target === 'SEM') return t.includes('sem');
+            return false;
         }
 
         function updateDashboardCounters() {
@@ -221,24 +236,20 @@
             const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0 };
 
             localData.forEach(item => {
-                var gRaw = item.grupo || "";
-                var cRaw = item.classe || "";
-                var rRaw = item.restituir || "";
+                const g = item.grupo || "";
+                const c = item.classe || "";
+                const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
 
-                const grupo = gRaw.toString().trim().toUpperCase();
-                const classe = cRaw.toString().trim().toUpperCase();
-                const restituido = rRaw.toString().trim().toUpperCase() === "SIM";
-
-                if (restituido) {
+                if (r) {
                     counts.restituidos++;
                 } else {
                     counts.pendentes++;
-                    if (grupo === 'MOTOCICLETA' && (classe === 'COM PLACA' || classe.includes('COM'))) counts.moto_com++;
-                    if (grupo === 'MOTOCICLETA' && (classe === 'SEM PLACA' || classe.includes('SEM'))) counts.moto_sem++;
-                    if (grupo === 'MOTONETA' && (classe === 'COM PLACA' || classe.includes('COM'))) counts.motoneta_com++;
-                    if (grupo === 'MOTONETA' && (classe === 'SEM PLACA' || classe.includes('SEM'))) counts.motoneta_sem++;
-                    if ((grupo === 'CARRO' || grupo.includes('VIATURA')) && (classe === 'COM PLACA' || classe.includes('COM'))) counts.carro_com++;
-                    if ((grupo === 'CARRO' || grupo.includes('VIATURA')) && (classe === 'SEM PLACA' || classe.includes('SEM'))) counts.carro_sem++;
+                    if (checkGrupo(g, 'MOTO') && checkClasse(c, 'COM')) counts.moto_com++;
+                    if (checkGrupo(g, 'MOTO') && checkClasse(c, 'SEM')) counts.moto_sem++;
+                    if (checkGrupo(g, 'MOTONETA') && checkClasse(c, 'COM')) counts.motoneta_com++;
+                    if (checkGrupo(g, 'MOTONETA') && checkClasse(c, 'SEM')) counts.motoneta_sem++;
+                    if (checkGrupo(g, 'CARRO') && checkClasse(c, 'COM')) counts.carro_com++;
+                    if (checkGrupo(g, 'CARRO') && checkClasse(c, 'SEM')) counts.carro_sem++;
                 }
             });
 
@@ -255,7 +266,7 @@
         function openList(grupo, classe, statusRestituir) {
             currentFilter = { grupo, classe, statusRestituir };
             
-            let titulo = `${grupo}s (${classe})`;
+            let titulo = `${grupo}S (${classe} PLACA)`;
             if (statusRestituir === 'PENDENTE' && grupo === 'ALL') titulo = "Restituir Veículo (Pendentes)";
             if (statusRestituir === 'RESTITUIDO') titulo = "Veículos Já Restituídos";
             
@@ -268,21 +279,14 @@
 
         function filterData(dataArray) {
             return dataArray.filter(item => {
-                var gRaw = item.grupo || "";
-                var cRaw = item.classe || "";
-                var rRaw = item.restituir || "";
-
-                const g = gRaw.toString().trim().toUpperCase();
-                const c = cRaw.toString().trim().toUpperCase();
-                const r = rRaw.toString().trim().toUpperCase() === "SIM";
+                const g = item.grupo || "";
+                const c = item.classe || "";
+                const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
 
                 if (currentFilter.statusRestituir === 'RESTITUIDO') return r;
                 if (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL') return !r;
 
-                const grupoBate = (g === currentFilter.grupo) || (currentFilter.grupo === 'CARRO' && g.includes('VIATURA'));
-                const classeBate = c.includes(currentFilter.classe.replace(" ", ""));
-
-                return grupoBate && classeBate && !r;
+                return checkGrupo(g, currentFilter.grupo) && checkClasse(c, currentFilter.classe) && !r;
             });
         }
 
@@ -304,8 +308,7 @@
                     imgHtml = `<img src="${item.imagem}" class="item-thumb" alt="Foto">`;
                 }
 
-                var rRaw = item.restituir || "";
-                const isRestituido = rRaw.toString().trim().toUpperCase() === "SIM";
+                const isRestituido = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
                 const btnRestituir = !isRestituido 
                     ? `<button class="btn-restituir-action" onclick="executarRestituição('${item.id}')">🔄 Confirmar Restituição</button>` 
                     : `<span style="color:green; font-weight:bold; font-size:12px; display:block; margin-top:8px;">✅ Restituído</span>`;
@@ -343,7 +346,7 @@
             renderList(filtered);
         }
 
-        function executarRestituição(id) {
+        function ejecutarRestituição(id) {
             if (!confirm(`Deseja confirmar a restituição do veículo ID: ${id}?`)) return;
 
             toggleLoading(true);
