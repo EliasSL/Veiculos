@@ -200,12 +200,10 @@
         function fetchData() {
             showLoading(true);
             
-            // Envio simplificado via texto plano evita bloqueio do celular
-            fetch(API_URL, {
-                method: "POST",
-                mode: "cors",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({ action: "getData" })
+            // Alterado para GET com parâmetros na URL, eliminando erros de CORS em requisições móveis
+            fetch(`${API_URL}?action=getData`, {
+                method: "GET",
+                mode: "cors"
             })
             .then(res => res.json())
             .then(res => {
@@ -219,7 +217,7 @@
             })
             .catch(err => {
                 console.error(err);
-                alert("Erro de conexão com o Web App. Verifique a nova versão do Script.");
+                alert("Erro de conexão com o Web App. Certifique-se de que a nova versão do Script foi publicada.");
                 showLoading(false);
             });
         }
@@ -289,11 +287,12 @@
                 documento: document.getElementById('f-documento').value
             };
 
-            fetch(API_URL, {
-                method: "POST",
-                mode: "cors",
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify({ action: "saveData", data: payload })
+            // Conversão dos dados estruturados em parâmetros seguros para a URL do GET
+            const urlWithParams = `${API_URL}?action=saveData&data=${encodeURIComponent(JSON.stringify(payload))}`;
+
+            fetch(urlWithParams, {
+                method: "GET",
+                mode: "cors"
             })
             .then(res => res.json())
             .then(res => {
@@ -311,6 +310,7 @@
             })
             .catch(err => {
                 console.error(err);
+                alert("Falha na comunicação ao tentar salvar os dados.");
                 showLoading(false);
             });
         }
@@ -387,14 +387,15 @@
             });
         }
 
-        function ejecutarRestituicao(id) {
+        function executarRestituicao(id) {
             if(confirm(`Deseja marcar o veículo ID: ${id} como RESTITUÍDO?`)) {
                 showLoading(true);
-                fetch(API_URL, {
-                    method: "POST",
-                    mode: "cors",
-                    headers: { "Content-Type": "text/plain" },
-                    body: JSON.stringify({ action: "restituir", id: id })
+                
+                const urlWithParams = `${API_URL}?action=restituir&id=${id}`;
+
+                fetch(urlWithParams, {
+                    method: "GET",
+                    mode: "cors"
                 })
                 .then(res => res.json())
                 .then(res => {
@@ -409,6 +410,7 @@
                 })
                 .catch(err => {
                     console.error(err);
+                    alert("Falha na comunicação ao tentar processar a restituição.");
                     showLoading(false);
                 });
             }
