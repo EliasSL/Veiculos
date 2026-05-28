@@ -227,33 +227,37 @@
         }
 
         function checkString(val, target) {
-            if(!val) return false;
-            return String(val).trim().toUpperCase() === String(target).toUpperCase();
-        }
+    if (val === undefined || val === null) return false;
+    // Remove espaços extras e joga tudo para maiúsculo antes de comparar
+    return String(val).trim().toUpperCase() === String(target).trim().toUpperCase();
+}
+function renderDashboard() {
+    if (!localData || !Array.isArray(localData)) {
+        document.getElementById('lbl-total').innerText = "0";
+        return;
+    }
 
-        function renderDashboard() {
-            document.getElementById('lbl-total').innerText = localData.length;
+    document.getElementById('lbl-total').innerText = localData.length;
 
-            const motosCom = localData.filter(i => checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            const motosSem = localData.filter(i => checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            const motonetasCom = localData.filter(i => checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            const motonetasSem = localData.filter(i => checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            const carrosCom = localData.filter(i => checkString(i.grupo, 'CARRO') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            const carrosSem = localData.filter(i => checkString(i.grupo, 'CARRO') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
-            
-            const pendentesRestituir = localData.filter(i => !checkString(i.restituir, 'SIM')).length;
-            const restituidos = localData.filter(i => checkString(i.restituir, 'SIM')).length;
+    const motosCom = localData.filter(i => i && checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
+    const motosSem = localData.filter(i => i && checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
+    const motonetasCom = localData.filter(i => i && checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
+    const motonetasSem = localData.filter(i => i && checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
+    const carrosCom = localData.filter(i => i && checkString(i.grupo, 'CARRO') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
+    const carrosSem = localData.filter(i => i && checkString(i.grupo, 'CARRO') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
+    
+    const pendentesRestituir = localData.filter(i => i && !checkString(i.restituir, 'SIM')).length;
+    const restituidos = localData.filter(i => i && checkString(i.restituir, 'SIM')).length;
 
-            document.getElementById('card-moto-com').innerText = motosCom;
-            document.getElementById('card-moto-sem').innerText = motosSem;
-            document.getElementById('card-motoneta-com').innerText = motonetasCom;
-            document.getElementById('card-motoneta-sem').innerText = motonetasSem;
-            document.getElementById('card-carro-com').innerText = carrosCom;
-            document.getElementById('card-carro-sem').innerText = carrosSem;
-            document.getElementById('card-restituir-p').innerText = pendentesRestituir;
-            document.getElementById('card-restituidos-total').innerText = restituidos;
-        }
-
+    document.getElementById('card-moto-com').innerText = motosCom;
+    document.getElementById('card-moto-sem').innerText = motosSem;
+    document.getElementById('card-motoneta-com').innerText = motonetasCom;
+    document.getElementById('card-motoneta-sem').innerText = motonetasSem;
+    document.getElementById('card-carro-com').innerText = carrosCom;
+    document.getElementById('card-carro-sem').innerText = carrosSem;
+    document.getElementById('card-restituir-p').innerText = pendentesRestituir;
+    document.getElementById('card-restituidos-total').innerText = restituidos;
+}
         function triggerInput(type) {
             if(type === 'camera') document.getElementById('input-camera').click();
             else document.getElementById('input-galeria').click();
