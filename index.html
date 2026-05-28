@@ -50,7 +50,7 @@
 </head>
 <body>
 
-    <div id="loading">Sincronizando dados com a Planilha...</div>
+    <div id="loading">Sincronizando com a Base de Dados de NBO...</div>
 
     <header>
         <h1>🚗 VEÍCULOS UNISP NBO</h1>
@@ -144,14 +144,6 @@
             <div class="form-group"><label>Data Saída</label><input type="date" id="f-datasaida" class="form-control"></div>
             <div class="form-group"><label>Servidor</label><input type="text" id="f-servidor" class="form-control"></div>
             <div class="form-group"><label>Documento</label><input type="text" id="f-documento" class="form-control"></div>
-            
-            <div class="form-group">
-                <label>Restituir</label>
-                <select id="f-restituir" class="form-control" disabled>
-                    <option value="NÃO" selected>NÃO</option>
-                    <option value="SIM">SIM</option>
-                </select>
-            </div>
 
             <button type="submit" class="btn-submit">💾 SALVAR CADASTRO</button>
         </form>
@@ -197,7 +189,6 @@
             }
         }
 
-        // Motor de requisição JSONP blindado contra bloqueios mobile
         function jsonpRequest(url, successCallback, errorCallback) {
             const callbackName = 'jsonp_' + Math.round(100000 * Math.random());
             window[callbackName] = function(data) {
@@ -221,33 +212,38 @@
 
         function fetchData() {
             showLoading(true);
-            
             jsonpRequest(`${API_URL}?action=getData`, function(res) {
                 if(res.status === 'success') {
                     localData = res.data;
                     renderDashboard();
                 } else {
-                    alert("Erro interno: " + res.message);
+                    alert("Erro ao ler dados: " + res.message);
                 }
                 showLoading(false);
             }, function() {
-                alert("Erro de conexão com o Web App. Verifique a nova versão do Script.");
+                alert("Erro de conexão com o servidor. Verifique a internet ou o script.");
                 showLoading(false);
             });
+        }
+
+        // Normalizador para evitar conflito de string (caixa alta, baixa e espaços)
+        function checkString(val, target) {
+            if(!val) return false;
+            return String(val).trim().toUpperCase() === String(target).toUpperCase();
         }
 
         function renderDashboard() {
             document.getElementById('lbl-total').innerText = localData.length;
 
-            const motosCom = localData.filter(i => String(i.grupo).toUpperCase() === 'MOTOCICLETA' && String(i.classe).toUpperCase() === 'COM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
-            const motosSem = localData.filter(i => String(i.grupo).toUpperCase() === 'MOTOCICLETA' && String(i.classe).toUpperCase() === 'SEM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
-            const motonetasCom = localData.filter(i => String(i.grupo).toUpperCase() === 'MOTONETA' && String(i.classe).toUpperCase() === 'COM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
-            const motonetasSem = localData.filter(i => String(i.grupo).toUpperCase() === 'MOTONETA' && String(i.classe).toUpperCase() === 'SEM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
-            const carrosCom = localData.filter(i => String(i.grupo).toUpperCase() === 'CARRO' && String(i.classe).toUpperCase() === 'COM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
-            const carrosSem = localData.filter(i => String(i.grupo).toUpperCase() === 'CARRO' && String(i.classe).toUpperCase() === 'SEM PLACA' && String(i.restituir).toUpperCase() !== 'SIM').length;
+            const motosCom = localData.filter(i => checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            const motosSem = localData.filter(i => checkString(i.grupo, 'MOTOCICLETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            const motonetasCom = localData.filter(i => checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            const motonetasSem = localData.filter(i => checkString(i.grupo, 'MOTONETA') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            const carrosCom = localData.filter(i => checkString(i.grupo, 'CARRO') && checkString(i.classe, 'COM PLACA') && !checkString(i.restituir, 'SIM')).length;
+            const carrosSem = localData.filter(i => checkString(i.grupo, 'CARRO') && checkString(i.classe, 'SEM PLACA') && !checkString(i.restituir, 'SIM')).length;
             
-            const pendentesRestituir = localData.filter(i => String(i.restituir).toUpperCase() !== 'SIM').length;
-            const restituidos = localData.filter(i => String(i.restituir).toUpperCase() === 'SIM').length;
+            const pendentesRestituir = localData.filter(i => !checkString(i.restituir, 'SIM')).length;
+            const restituidos = localData.filter(i => checkString(i.restituir, 'SIM')).length;
 
             document.getElementById('card-moto-com').innerText = motosCom;
             document.getElementById('card-moto-sem').innerText = motosSem;
@@ -343,14 +339,14 @@
             let filtered = localData;
 
             if (currentFilter.statusRestituir === 'RESTITUIDO') {
-                filtered = filtered.filter(i => String(i.restituir).toUpperCase() === 'SIM');
+                filtered = filtered.filter(i => checkString(i.restituir, 'SIM'));
             } else if (currentFilter.statusRestituir === 'PENDENTE') {
-                filtered = filtered.filter(i => String(i.restituir).toUpperCase() !== 'SIM');
+                filtered = filtered.filter(i => !checkString(i.restituir, 'SIM'));
             } else {
                 filtered = filtered.filter(i => 
-                    String(i.grupo).toUpperCase() === currentFilter.grupo && 
-                    String(i.classe).toUpperCase() === currentFilter.classe && 
-                    String(i.restituir).toUpperCase() !== 'SIM'
+                    checkString(i.grupo, currentFilter.grupo) && 
+                    checkString(i.classe, currentFilter.classe) && 
+                    !checkString(i.restituir, 'SIM')
                 );
             }
 
@@ -361,7 +357,7 @@
             }
 
             if(filtered.length === 0) {
-                container.innerHTML = "<p style='text-align:center; padding:20px; color:#999;'>Nenhum veículo encontrado.</p>";
+                container.innerHTML = "<p style='text-align:center; padding:20px; color:#999;'>Nenhum veículo nesta categoria.</p>";
                 return;
             }
 
@@ -375,7 +371,7 @@
                 }
 
                 let btnRestituir = "";
-                if(String(item.restituir).toUpperCase() !== 'SIM') {
+                if(!checkString(item.restituir, 'SIM')) {
                     btnRestituir = `<button class="btn-restituir-action" onclick="executarRestituicao(${item.id})">🔄 Restituir</button>`;
                 }
 
@@ -393,10 +389,9 @@
             });
         }
 
-        function ejecutarRestituicao(id) {
+        function executarRestituicao(id) {
             if(confirm(`Deseja marcar o veículo ID: ${id} como RESTITUÍDO?`)) {
                 showLoading(true);
-                
                 const urlWithParams = `${API_URL}?action=restituir&id=${id}`;
 
                 jsonpRequest(urlWithParams, function(res) {
