@@ -32,8 +32,12 @@
         .media-btn { flex: 1; padding: 10px; background: #eef; border: 1px dashed #5c54a4; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; }
         #preview-img { width: 100%; max-height: 150px; object-fit: contain; margin-top: 8px; border-radius: 8px; display: none; }
 
-        .btn-submit { width: 100%; background: #2a9d8f; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        /* Ajuste do container de botões finais do formulário */
+        .form-actions-container { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-submit { flex: 1; background: #2a9d8f; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
         .btn-submit.edit-mode { background: #f4a261; }
+        .btn-cancel { flex: 1; background: #e76f51; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; }
+        .btn-cancel:hover { background: #c95a3e; }
         
         .list-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
         .search-box { flex: 1; display: flex; gap: 4px; }
@@ -161,7 +165,10 @@
             <div class="form-group"><label>Servidor</label><input type="text" id="f-servidor" class="form-control"></div>
             <div class="form-group"><label>Documento</label><input type="text" id="f-documento" class="form-control"></div>
 
-            <button type="submit" id="btn-salvar-principal" class="btn-submit">💾 SALVAR CADASTRO</button>
+            <div class="form-actions-container">
+                <button type="submit" id="btn-salvar-principal" class="btn-submit">💾 SALVAR CADASTRO</button>
+                <button type="button" class="btn-cancel" onclick="cancelarFormulario()">❌ CANCELAR</button>
+            </div>
         </form>
     </div>
 
@@ -200,7 +207,30 @@
 
         function limparEIrParaCadastro() {
             limparFormulario();
+            
+            // LÓGICA SOLICITADA: Encontra o maior número de lacre sequencial na Coluna B (localData)
+            let maxLacre = 0;
+            if (localData && localData.length > 0) {
+                localData.forEach(item => {
+                    if (item.lacre) {
+                        // Converte para número puro se houver string envolvida
+                        let num = parseInt(item.lacre.toString().replace(/\D/g, ""), 10);
+                        if (!isNaN(num) && num > maxLacre) {
+                            maxLacre = num;
+                        }
+                    }
+                });
+            }
+            
+            // Define o próximo número sequencial se encontrar algum registro
+            document.getElementById('f-lacre').value = maxLacre > 0 ? (maxLacre + 1) : "";
+            
             switchPage('cadastrar');
+        }
+
+        function cancelarFormulario() {
+            limparFormulario();
+            switchPage('dashboard');
         }
 
         function toggleLoading(show) {
@@ -346,7 +376,6 @@
                     ? `<button class="btn-restituir-action" onclick="executarRestituição('${item.id}')">🔄 Confirmar Restituição</button>` 
                     : `<span style="color:green; font-weight:bold; font-size:12px; display:block; margin-top:8px;">✅ Restituído</span>`;
 
-                // Botão EDITAR adicionado ao lado/abaixo do de restituição
                 const botoesAcao = `
                     <div class="item-actions">
                         ${btnRestituir}
@@ -367,15 +396,12 @@
             });
         }
 
-        // Função responsável por preencher o formulário para edição
         function iniciarEdicao(id) {
             const item = localData.find(v => v.id.toString() === id.toString());
             if (!item) return;
 
-            // Define o ID oculto para controle
             document.getElementById('f-id-edicao').value = item.id;
 
-            // Preenche os campos de B a S
             document.getElementById('f-lacre').value = item.lacre || "";
             document.getElementById('f-dataentrada').value = item.dataentrada || "";
             document.getElementById('f-recebedor').value = item.recebedor || "";
@@ -391,7 +417,6 @@
             document.getElementById('f-chassi').value = item.chassi || "";
             document.getElementById('f-motor').value = item.motor || "";
             
-            // Gerencia Imagem Antiga se existir
             if (item.imagem && item.imagem.toString().startsWith("data:image")) {
                 base64Image = item.imagem;
                 const preview = document.getElementById('preview-img');
@@ -407,7 +432,6 @@
             document.getElementById('f-servidor').value = item.servidor || "";
             document.getElementById('f-documento').value = item.documento || "";
 
-            // Transforma o botão visualmente para modo Edição
             const btnSalvar = document.getElementById('btn-salvar-principal');
             btnSalvar.innerText = "💾 SALVAR EDIÇÃO";
             btnSalvar.classList.add('edit-mode');
@@ -487,11 +511,10 @@
             toggleLoading(true);
 
             const idEdicao = document.getElementById('f-id-edicao').value;
-            // Se possuir ID na variável oculta, a ação passa a ser 'editData' em vez de 'saveData'
             const acaoDestino = idEdicao ? 'editData' : 'saveData';
 
             const payload = {
-                id: idEdicao || "", // envia vazio se for cadastro novo
+                id: idEdicao || "", 
                 lacre: document.getElementById('f-lacre').value,
                 dataentrada: document.getElementById('f-dataentrada').value,
                 recebedor: document.getElementById('f-recebedor').value,
@@ -539,7 +562,6 @@
             document.getElementById('preview-img').style.display = 'none';
             base64Image = "";
 
-            // Retorna o botão para o formato original de Cadastro
             const btnSalvar = document.getElementById('btn-salvar-principal');
             btnSalvar.innerText = "💾 SALVAR CADASTRO";
             btnSalvar.classList.remove('edit-mode');
