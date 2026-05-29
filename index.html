@@ -33,6 +33,7 @@
         #preview-img { width: 100%; max-height: 150px; object-fit: contain; margin-top: 8px; border-radius: 8px; display: none; }
 
         .btn-submit { width: 100%; background: #2a9d8f; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .btn-submit.edit-mode { background: #f4a261; }
         
         .list-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
         .search-box { flex: 1; display: flex; gap: 4px; }
@@ -43,8 +44,12 @@
         .item-card p { font-size: 13px; margin-bottom: 3px; line-height: 1.4; color: #333; }
         .item-card strong { color: #5c54a4; }
         .item-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; float: right; margin-left: 10px; background: #eee; border: 1px solid #ddd; }
-        .btn-restituir-action { background: #e76f51; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-top: 8px; width: 100%; }
+        
+        .item-actions { display: flex; gap: 8px; margin-top: 8px; }
+        .btn-restituir-action { flex: 2; background: #e76f51; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; }
         .btn-restituir-action:hover { background: #c95a3e; }
+        .btn-editar-action { flex: 1; background: #f4a261; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-editar-action:hover { background: #e76f51; }
         
         #loading { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:1000; justify-content:center; align-items:center; font-weight:bold; color:#5c54a4; font-size: 16px; }
     </style>
@@ -57,7 +62,7 @@
         <h1>🚗 VEÍCULOS UNISP NBO</h1>
         <div class="nav-buttons">
             <button class="nav-btn active" onclick="switchPage('dashboard')">📊 Dashboard</button>
-            <button class="nav-btn" onclick="switchPage('cadastrar')">➕ Cadastrar</button>
+            <button class="nav-btn" onclick="limparEIrParaCadastro()">➕ Cadastrar</button>
             <button class="nav-btn counter-badge">🚚 Total: <span id="lbl-total">0</span></button>
         </div>
     </header>
@@ -108,6 +113,8 @@
     </div>
 
     <div id="page-cadastrar" class="page">
+        <input type="hidden" id="f-id-edicao" value="">
+        
         <form id="form-cadastro" onsubmit="handleFormSubmit(event)">
             <div class="form-group"><label>Lacre</label><input type="text" id="f-lacre" class="form-control"></div>
             <div class="form-group"><label>Data Entrada</label><input type="date" id="f-dataentrada" class="form-control"></div>
@@ -154,7 +161,7 @@
             <div class="form-group"><label>Servidor</label><input type="text" id="f-servidor" class="form-control"></div>
             <div class="form-group"><label>Documento</label><input type="text" id="f-documento" class="form-control"></div>
 
-            <button type="submit" class="btn-submit">💾 SALVAR CADASTRO</button>
+            <button type="submit" id="btn-salvar-principal" class="btn-submit">💾 SALVAR CADASTRO</button>
         </form>
     </div>
 
@@ -189,6 +196,11 @@
             
             if (pageId === 'dashboard') document.querySelectorAll('.nav-buttons .nav-btn')[0].classList.add('active');
             if (pageId === 'cadastrar') document.querySelectorAll('.nav-buttons .nav-btn')[1].classList.add('active');
+        }
+
+        function limparEIrParaCadastro() {
+            limparFormulario();
+            switchPage('cadastrar');
         }
 
         function toggleLoading(show) {
@@ -259,7 +271,6 @@
                     if (checkGrupo(g, 'CARRO') && checkClasse(c, 'COM')) counts.carro_com++;
                     if (checkGrupo(g, 'CARRO') && checkClasse(c, 'SEM')) counts.carro_sem++;
                     
-                    // Contagem por Procedimento (Coluna E)
                     if (p.includes("SEM BO")) {
                         counts.sem_bo++;
                     } else {
@@ -276,7 +287,6 @@
             document.getElementById('card-carro-sem').innerText = counts.carro_sem;
             document.getElementById('card-restituir-p').innerText = counts.pendentes;
             document.getElementById('card-restituidos-total').innerText = counts.restituidos;
-            // Atualiza os valores na tela dos novos cards
             document.getElementById('card-sem-bo').innerText = counts.sem_bo;
             document.getElementById('card-com-bo').innerText = counts.com_bo;
         }
@@ -305,11 +315,8 @@
                 const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
 
                 if (currentFilter.statusRestituir === 'RESTITUIDO') return r;
-                
-                // Filtros específicos para os novos cards de Procedimento
                 if (currentFilter.grupo === 'PROC_SEM_BO') return p.includes("SEM BO") && !r;
                 if (currentFilter.grupo === 'PROC_COM_BO') return !p.includes("SEM BO") && !r;
-
                 if (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL') return !r;
 
                 return checkGrupo(g, currentFilter.grupo) && checkClasse(c, currentFilter.classe) && !r;
@@ -339,6 +346,14 @@
                     ? `<button class="btn-restituir-action" onclick="executarRestituição('${item.id}')">🔄 Confirmar Restituição</button>` 
                     : `<span style="color:green; font-weight:bold; font-size:12px; display:block; margin-top:8px;">✅ Restituído</span>`;
 
+                // Botão EDITAR adicionado ao lado/abaixo do de restituição
+                const botoesAcao = `
+                    <div class="item-actions">
+                        ${btnRestituir}
+                        <button class="btn-editar-action" onclick="iniciarEdicao('${item.id}')">✏️ Editar</button>
+                    </div>
+                `;
+
                 card.innerHTML = `
                     ${imgHtml}
                     <p><strong>ID / Lacre:</strong> # ${item.id || 'N/A'} | Lacre: ${item.lacre || 'Sem'}</p>
@@ -346,10 +361,58 @@
                     <p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${item.dataentrada || ''}</p>
                     <p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p>
                     <p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>
-                    ${btnRestituir}
+                    ${botoesAcao}
                 `;
                 container.appendChild(card);
             });
+        }
+
+        // Função responsável por preencher o formulário para edição
+        function iniciarEdicao(id) {
+            const item = localData.find(v => v.id.toString() === id.toString());
+            if (!item) return;
+
+            // Define o ID oculto para controle
+            document.getElementById('f-id-edicao').value = item.id;
+
+            // Preenche os campos de B a S
+            document.getElementById('f-lacre').value = item.lacre || "";
+            document.getElementById('f-dataentrada').value = item.dataentrada || "";
+            document.getElementById('f-recebedor').value = item.recebedor || "";
+            document.getElementById('f-procedimento').value = item.procedimento || "";
+            
+            if(item.grupo) document.getElementById('f-grupo').value = item.grupo.toUpperCase().trim();
+            if(item.classe) document.getElementById('f-classe').value = item.classe.toUpperCase().trim();
+            
+            document.getElementById('f-placa').value = item.placa || "";
+            document.getElementById('f-marca').value = item.marca || "";
+            document.getElementById('f-modelo').value = item.modelo || "";
+            document.getElementById('f-cor').value = item.cor || "";
+            document.getElementById('f-chassi').value = item.chassi || "";
+            document.getElementById('f-motor').value = item.motor || "";
+            
+            // Gerencia Imagem Antiga se existir
+            if (item.imagem && item.imagem.toString().startsWith("data:image")) {
+                base64Image = item.imagem;
+                const preview = document.getElementById('preview-img');
+                preview.src = base64Image;
+                preview.style.display = 'block';
+            } else {
+                base64Image = "";
+                document.getElementById('preview-img').style.display = 'none';
+            }
+
+            document.getElementById('f-nota').value = item.nota || "";
+            document.getElementById('f-datasaida').value = item.datasaida || "";
+            document.getElementById('f-servidor').value = item.servidor || "";
+            document.getElementById('f-documento').value = item.documento || "";
+
+            // Transforma o botão visualmente para modo Edição
+            const btnSalvar = document.getElementById('btn-salvar-principal');
+            btnSalvar.innerText = "💾 SALVAR EDIÇÃO";
+            btnSalvar.classList.add('edit-mode');
+
+            switchPage('cadastrar');
         }
 
         function filterListBySearch() {
@@ -423,7 +486,12 @@
             event.preventDefault();
             toggleLoading(true);
 
+            const idEdicao = document.getElementById('f-id-edicao').value;
+            // Se possuir ID na variável oculta, a ação passa a ser 'editData' em vez de 'saveData'
+            const acaoDestino = idEdicao ? 'editData' : 'saveData';
+
             const payload = {
+                id: idEdicao || "", // envia vazio se for cadastro novo
                 lacre: document.getElementById('f-lacre').value,
                 dataentrada: document.getElementById('f-dataentrada').value,
                 recebedor: document.getElementById('f-recebedor').value,
@@ -446,12 +514,12 @@
             const callbackName = 'jsonp_save_' + Date.now();
             window[callbackName] = function(response) {
                 if (response && response.status === 'success') {
-                    alert(response.message);
+                    alert(response.message || 'Dados gravados com sucesso!');
                     limparFormulario();
                     fetchData();
                     switchPage('dashboard');
                 } else {
-                    alert('Erro ao salvar na planilha.');
+                    alert('Erro ao processar alteração na planilha.');
                 }
                 toggleLoading(false);
                 delete window[callbackName];
@@ -461,14 +529,20 @@
 
             const script = document.createElement('script');
             script.id = callbackName;
-            script.src = `${API_URL}?action=saveData&data=${encodeURIComponent(JSON.stringify(payload))}&callback=${callbackName}`;
+            script.src = `${API_URL}?action=${acaoDestino}&data=${encodeURIComponent(JSON.stringify(payload))}&callback=${callbackName}`;
             document.body.appendChild(script);
         }
 
         function limparFormulario() {
             document.getElementById('form-cadastro').reset();
+            document.getElementById('f-id-edicao').value = "";
             document.getElementById('preview-img').style.display = 'none';
             base64Image = "";
+
+            // Retorna o botão para o formato original de Cadastro
+            const btnSalvar = document.getElementById('btn-salvar-principal');
+            btnSalvar.innerText = "💾 SALVAR CADASTRO";
+            btnSalvar.classList.remove('edit-mode');
         }
     </script>
 </body>
