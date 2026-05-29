@@ -96,6 +96,14 @@
                 <h3>✅ VEÍCULOS RESTITUÍDOS</h3>
                 <div class="value" id="card-restituidos-total">0</div>
             </div>
+            <div class="card" onclick="openList('PROC_SEM_BO', 'ALL', 'PENDENTE')">
+                <h3>📄 SEM BO</h3>
+                <div class="value" id="card-sem-bo">0</div>
+            </div>
+            <div class="card" onclick="openList('PROC_COM_BO', 'ALL', 'PENDENTE')">
+                <h3>📄 COM BO</h3>
+                <div class="value" id="card-com-bo">0</div>
+            </div>
         </div>
     </div>
 
@@ -204,7 +212,6 @@
                 if(el) el.remove();
             };
 
-            // O cache buster (_nocache=) força o celular a baixar a versão mais nova sempre
             const script = document.createElement('script');
             script.id = callbackName;
             script.src = `${API_URL}?action=getData&callback=${callbackName}&_nocache=${Date.now()}`;
@@ -233,11 +240,12 @@
         function updateDashboardCounters() {
             document.getElementById('lbl-total').innerText = localData.length;
 
-            const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0 };
+            const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0, sem_bo: 0, com_bo: 0 };
 
             localData.forEach(item => {
                 const g = item.grupo || "";
                 const c = item.classe || "";
+                const p = (item.procedimento || "").toString().toUpperCase().trim();
                 const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
 
                 if (r) {
@@ -250,6 +258,13 @@
                     if (checkGrupo(g, 'MOTONETA') && checkClasse(c, 'SEM')) counts.motoneta_sem++;
                     if (checkGrupo(g, 'CARRO') && checkClasse(c, 'COM')) counts.carro_com++;
                     if (checkGrupo(g, 'CARRO') && checkClasse(c, 'SEM')) counts.carro_sem++;
+                    
+                    // Contagem por Procedimento (Coluna E)
+                    if (p.includes("SEM BO")) {
+                        counts.sem_bo++;
+                    } else {
+                        counts.com_bo++;
+                    }
                 }
             });
 
@@ -261,6 +276,9 @@
             document.getElementById('card-carro-sem').innerText = counts.carro_sem;
             document.getElementById('card-restituir-p').innerText = counts.pendentes;
             document.getElementById('card-restituidos-total').innerText = counts.restituidos;
+            // Atualiza os valores na tela dos novos cards
+            document.getElementById('card-sem-bo').innerText = counts.sem_bo;
+            document.getElementById('card-com-bo').innerText = counts.com_bo;
         }
 
         function openList(grupo, classe, statusRestituir) {
@@ -269,6 +287,8 @@
             let titulo = `${grupo}S (${classe} PLACA)`;
             if (statusRestituir === 'PENDENTE' && grupo === 'ALL') titulo = "Restituir Veículo (Pendentes)";
             if (statusRestituir === 'RESTITUIDO') titulo = "Veículos Já Restituídos";
+            if (grupo === 'PROC_SEM_BO') titulo = "Cadastros SEM BO";
+            if (grupo === 'PROC_COM_BO') titulo = "Cadastros COM BO";
             
             document.getElementById('list-title').innerText = titulo;
             document.getElementById('search-input').value = ""; 
@@ -281,9 +301,15 @@
             return dataArray.filter(item => {
                 const g = item.grupo || "";
                 const c = item.classe || "";
+                const p = (item.procedimento || "").toString().toUpperCase().trim();
                 const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
 
                 if (currentFilter.statusRestituir === 'RESTITUIDO') return r;
+                
+                // Filtros específicos para os novos cards de Procedimento
+                if (currentFilter.grupo === 'PROC_SEM_BO') return p.includes("SEM BO") && !r;
+                if (currentFilter.grupo === 'PROC_COM_BO') return !p.includes("SEM BO") && !r;
+
                 if (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL') return !r;
 
                 return checkGrupo(g, currentFilter.grupo) && checkClasse(c, currentFilter.classe) && !r;
