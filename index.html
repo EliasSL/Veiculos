@@ -125,24 +125,9 @@
             border-color: #FFE484;
             box-shadow: 0 0 6px #FFD966;
         }
-        .media-actions { display: flex; gap: 10px; margin-top: 6px; }
-        .media-btn { 
-            flex: 1; 
-            padding: 10px; 
-            background: #2b2415; 
-            border: 1px solid #FFD966; 
-            border-radius: 32px; 
-            font-size: 12px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            text-align: center; 
-            color: #FFEAA0;
-            transition: 0.2s;
-        }
-        .media-btn:hover {
-            background: #4a3c20;
-            box-shadow: 0 0 6px #FFCC55;
-        }
+        
+        /* ESTILOS DE MÍDIA OCULTOS */
+        .media-actions { display: none; }
         #preview-img { width: 100%; max-height: 160px; object-fit: contain; margin-top: 10px; border-radius: 12px; display: none; border: 2px solid #FFD966; background: #111; padding: 4px; }
         
         /* BOTÕES AÇÕES FINAIS */
@@ -368,7 +353,8 @@
             <div class="form-group"><label>Chassi</label><input type="text" id="f-chassi" class="form-control"></div>
             <div class="form-group"><label>Motor</label><input type="text" id="f-motor" class="form-control"></div>
             
-            <div class="form-group">
+            <!-- Campo de imagem oculto (mantido apenas para compatibilidade, mas não visível ao usuário) -->
+            <div class="form-group" style="display: none;">
                 <label>Imagem</label>
                 <div class="media-actions">
                     <button type="button" class="media-btn" onclick="triggerInput('camera')">📸 ABRIR CÂMERA</button>
@@ -395,7 +381,7 @@
         <div class="list-header">
             <button class="nav-btn" onclick="switchPage('dashboard')">⬅️ Voltar</button>
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Pesquisar placa, modelo, ID...">
+                <input type="text" id="search-input" placeholder="Pesquisar placa, modelo...">
             </div>
         </div>
         <h2 id="list-title" style="font-size:14px; margin-bottom:10px; padding-left: 5px;">Lista</h2>
@@ -568,7 +554,8 @@
                     ? `<button class="btn-restituir-action" onclick="executarRestituição('${item.id}')">🔄 Confirmar Restituição</button>` 
                     : `<span style="color:#33FF99; font-weight:bold; font-size:12px; display:block; margin-top:8px; text-shadow:0 0 3px #00aa66;">✅ Restituído</span>`;
                 const botoesAcao = `<div class="item-actions">${btnRestituir}<button class="btn-editar-action" onclick="iniciarEdicao('${item.id}')">✏️ Editar</button></div>`;
-                card.innerHTML = `${imgHtml}<p><strong>ID / Lacre:</strong> # ${item.id || 'N/A'} | Lacre: ${item.lacre || 'Sem'}</p><p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p><p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${item.dataentrada || ''}</p><p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p><p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>${botoesAcao}`;
+                // ID oculto - removido da exibição visual
+                card.innerHTML = `${imgHtml}<p><strong>Lacre:</strong> ${item.lacre || 'Sem lacre'}</p><p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p><p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${item.dataentrada || ''}</p><p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p><p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>${botoesAcao}`;
                 container.appendChild(card);
             });
         }
@@ -589,12 +576,11 @@
             document.getElementById('f-cor').value = item.cor || "";
             document.getElementById('f-chassi').value = item.chassi || "";
             document.getElementById('f-motor').value = item.motor || "";
+            // Campo imagem não será mais exibido, mas mantido para compatibilidade
             if (item.imagem && item.imagem.toString().startsWith("data:image")) {
                 base64Image = item.imagem;
-                const preview = document.getElementById('preview-img');
-                preview.src = base64Image;
-                preview.style.display = 'block';
-            } else { base64Image = ""; document.getElementById('preview-img').style.display = 'none'; }
+                // Não exibe preview pois o campo está oculto
+            } else { base64Image = ""; }
             document.getElementById('f-nota').value = item.nota || "";
             document.getElementById('f-datasaida').value = item.datasaida || "";
             document.getElementById('f-servidor').value = item.servidor || "";
@@ -609,12 +595,12 @@
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             const baseData = filterData(localData);
             if (!query) { renderList(baseData); return; }
-            const filtered = baseData.filter(item => (item.placa || "").toLowerCase().includes(query) || (item.modelo || "").toLowerCase().includes(query) || (item.marca || "").toLowerCase().includes(query) || (item.id || "").toString().includes(query) || (item.procedimento || "").toLowerCase().includes(query));
+            const filtered = baseData.filter(item => (item.placa || "").toLowerCase().includes(query) || (item.modelo || "").toLowerCase().includes(query) || (item.marca || "").toLowerCase().includes(query) || (item.lacre || "").toString().includes(query) || (item.procedimento || "").toLowerCase().includes(query));
             renderList(filtered);
         }
 
         function executarRestituição(id) {
-            if (!confirm(`Deseja confirmar a restituição do veículo ID: ${id}?`)) return;
+            if (!confirm(`Deseja confirmar a restituição deste veículo?`)) return;
             toggleLoading(true);
             const callbackName = 'jsonp_rest_' + Date.now();
             window[callbackName] = function(response) {
@@ -633,14 +619,12 @@
         }
 
         let base64Image = "";
-        function triggerInput(type) { if (type === 'camera') document.getElementById('input-camera').click(); if (type === 'galeria') document.getElementById('input-galeria').click(); }
+        // Funções de mídia mantidas apenas para compatibilidade (não visíveis ao usuário)
+        function triggerInput(type) { 
+            // Função mantida mas não acionada pois os botões estão ocultos
+        }
         function previewMedia(input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) { base64Image = e.target.result; const preview = document.getElementById('preview-img'); preview.src = base64Image; preview.style.display = 'block'; };
-                reader.readAsDataURL(file);
-            }
+            // Função mantida mas não acionada
         }
 
         function handleFormSubmit(event) {
@@ -677,7 +661,7 @@
         function limparFormulario() {
             document.getElementById('form-cadastro').reset();
             document.getElementById('f-id-edicao').value = "";
-            document.getElementById('preview-img').style.display = 'none';
+            // Preview da imagem não é exibido pois o campo está oculto
             base64Image = "";
             const btnSalvar = document.getElementById('btn-salvar-principal');
             btnSalvar.innerText = "💾 SALVAR CADASTRO";
