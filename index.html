@@ -472,7 +472,10 @@
 
         function limparEIrParaCadastro() {
             limparFormulario();
-            // Reset das flags
+            
+document.getElementById('f-dataentrada').value = new Date().toISOString().split('T')[0];
+
+// Reset das flags
             isEditingFromRestituir = false;
             isEditingFromRestituidos = false;
             isViewOnlyMode = false;
@@ -753,14 +756,40 @@
             switchPage('cadastrar');
         }
 
-        function filterListBySearch() {
-            const query = document.getElementById('search-input').value.toLowerCase().trim();
-            const baseData = filterData(localData);
-            if (!query) { renderList(baseData); return; }
-            const filtered = baseData.filter(item => (item.placa || "").toLowerCase().includes(query) || (item.modelo || "").toLowerCase().includes(query) || (item.marca || "").toLowerCase().includes(query) || (item.lacre || "").toString().includes(query) || (item.procedimento || "").toLowerCase().includes(query));
-            renderList(filtered);
-        }
+function filterListBySearch() {
+    const query = document.getElementById('search-input').value
+        .toLowerCase()
+        .trim();
 
+    // sempre pega os dados corretos da aba atual
+    let filtered = filterData(localData);
+
+    if (query !== "") {
+        filtered = filtered.filter(item => {
+
+            const textoPesquisa = [
+                item.placa,
+                item.modelo,
+                item.marca,
+                item.lacre,
+                item.procedimento,
+                item.cor,
+                item.chassi,
+                item.motor,
+                item.nota,
+                item.recebedor,
+                item.documento,
+                item.servidor
+            ]
+            .join(" ")
+            .toLowerCase();
+
+            return textoPesquisa.includes(query);
+        });
+    }
+
+    renderList(filtered);
+}
         function executarRestituição(id) {
             if (!confirm(`Deseja confirmar a restituição deste veículo?`)) return;
             toggleLoading(true);
