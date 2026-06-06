@@ -384,6 +384,15 @@ onclick="logoutSistema()"
 🚪 SAIR
 
 </button>
+
+<button
+class="nav-btn"
+onclick="alterarSenhaUsuario()"
+>
+
+🔑 SENHA
+
+</button>
             <button class="nav-btn active" onclick="switchPage('dashboard')">📊 Dashboard</button>
             <button class="nav-btn btn-cadastrar-destaque" onclick="limparEIrParaCadastro()">➕ CADASTRAR</button>
             <button class="nav-btn counter-badge">🚚 Total: <span id="lbl-total">0</span></button>
@@ -680,62 +689,72 @@ location.reload();
 
 function alterarSenhaUsuario(){
 
-const atual=
-
-prompt(
-"Senha atual:"
-);
+const senhaAtual=
+prompt("Digite sua senha atual:");
 
 if(
-atual===null
+senhaAtual===null ||
+senhaAtual.trim()===""
 )return;
 
-const nova=
-
-prompt(
-"Nova senha:"
-);
+const novaSenha=
+prompt("Digite a nova senha:");
 
 if(
-
-nova===null ||
-nova.trim()===""
-
+novaSenha===null ||
+novaSenha.trim()===""
 ){
 
 alert(
-"Senha inválida"
+"Nova senha inválida"
 );
 
 return;
-
 }
 
-const usuario=
+const confirmar=
+prompt(
+"Confirme a nova senha:"
+);
 
+if(
+confirmar!==novaSenha
+){
+
+alert(
+"As senhas não coincidem"
+);
+
+return;
+}
+
+toggleLoading(true);
+
+const usuario=
 localStorage.getItem(
 'usuarioLogado'
 );
 
 const cb=
+'alter_'+Date.now();
 
-'alter_'+
-Date.now();
+window[cb]=function(resp){
 
-window[cb]=function(r){
+toggleLoading(false);
 
 if(
-r.status==='success'
+resp.status==="success"
 ){
 
 alert(
-"Senha alterada"
+"Senha alterada com sucesso."
 );
 
 }else{
 
 alert(
-"Senha incorreta"
+resp.message||
+"Erro ao alterar senha."
 );
 
 }
@@ -745,18 +764,17 @@ delete window[cb];
 };
 
 const script=
-
-document
-.createElement(
-'script'
+document.createElement(
+"script"
 );
 
 script.src=
 
-`${API_URL}?action=alterarSenha&usuario=${encodeURIComponent(usuario)}&senhaAtual=${encodeURIComponent(atual)}&novaSenha=${encodeURIComponent(nova)}&callback=${cb}`;
+`${API_URL}?action=alterarSenha&usuario=${encodeURIComponent(usuario)}&senhaAtual=${encodeURIComponent(senhaAtual)}&novaSenha=${encodeURIComponent(novaSenha)}&callback=${cb}`;
 
-document.body
-.appendChild(script);
+document.body.appendChild(
+script
+);
 
 }
         function switchPage(pageId) {
