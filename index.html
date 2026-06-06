@@ -607,7 +607,35 @@
     function toggleLoading(show) {
         document.getElementById('loading').style.display = show ? 'flex' : 'none';
     }
+function formatarDataHoraBR(dataString){
 
+if(!dataString) return "";
+
+const data = new Date(dataString);
+
+if(isNaN(data)) return dataString;
+
+const dia =
+String(data.getDate()).padStart(2,'0');
+
+const mes =
+String(data.getMonth()+1).padStart(2,'0');
+
+const ano =
+data.getFullYear();
+
+const hora =
+String(data.getHours()).padStart(2,'0');
+
+const minuto =
+String(data.getMinutes()).padStart(2,'0');
+
+const segundo =
+String(data.getSeconds()).padStart(2,'0');
+
+return `${dia}/${mes}/${ano} ${hora}:${minuto}:${segundo}`;
+
+}
     function fetchData() {
         toggleLoading(true);
         const callbackName = 'jsonpCallback_' + Date.now();
@@ -1087,7 +1115,7 @@ item.dataentrada
             
             card.style.borderLeftColor = corAcao;
             card.innerHTML = `
-                <p><strong>📅 Data/Hora:</strong> ${atv.data_hora}</p>
+                <p><strong>📅 Data/Hora:</strong> ${formatarDataHoraBR(atv.data_hora)}</p>
                 <p><strong>👤 Usuário:</strong> ${atv.usuario}</p>
                 <p><strong>⚡ Ação:</strong> <span style="color:${corAcao};">${atv.acao}</span></p>
                 <p><strong>🆔 ID:</strong> ${atv.id || '-'}</p>
