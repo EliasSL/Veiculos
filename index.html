@@ -631,7 +631,49 @@
         script.onerror = () => { toggleLoading(false); alert("Falha de comunicação externa."); };
         document.body.appendChild(script);
     }
+function formatarDataVisual(data){
 
+if(!data) return "";
+
+const d = new Date(data);
+
+if(isNaN(d)) return data;
+
+const dia = String(
+d.getDate()
+).padStart(2,'0');
+
+const mes = String(
+d.getMonth()+1
+).padStart(2,'0');
+
+const ano = d.getFullYear();
+
+return `${dia}/${mes}/${ano}`;
+
+}
+
+function formatarDataInput(data){
+
+if(!data) return "";
+
+const d = new Date(data);
+
+if(isNaN(d)) return "";
+
+const ano = d.getFullYear();
+
+const mes = String(
+d.getMonth()+1
+).padStart(2,'0');
+
+const dia = String(
+d.getDate()
+).padStart(2,'0');
+
+return `${ano}-${mes}-${dia}`;
+
+}
     function checkGrupo(text, target) {
         const t = (text || "").toString().toLowerCase().trim();
         if (target === 'MOTO') return t.includes('moto') && !t.includes('motoneta');
@@ -752,7 +794,7 @@
                 if (item.documento) extraInfo += `<p><strong>Documento:</strong> ${item.documento}</p>`;
             }
             
-            card.innerHTML = `${imgHtml}<p><strong>Lacre:</strong> ${item.lacre || 'Sem lacre'}</p><p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p><p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${item.dataentrada || ''}</p><p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p><p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>${extraInfo}${botoesAcao}`;
+            card.innerHTML = `${imgHtml}<p><strong>Lacre:</strong> ${item.lacre || 'Sem lacre'}</p><p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p> <p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${formatarDataVisual(item.dataentrada)}</p><p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p><p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>${extraInfo}${botoesAcao}`;
             container.appendChild(card);
         });
     }
@@ -812,7 +854,11 @@
         
         document.getElementById('f-id-edicao').value = item.id;
         document.getElementById('f-lacre').value = item.lacre || "";
-        document.getElementById('f-dataentrada').value = item.dataentrada || "";
+        document.getElementById(
+'f-dataentrada'
+).value = formatarDataInput(
+item.dataentrada
+);
         document.getElementById('f-recebedor').value = item.recebedor || "";
         document.getElementById('f-procedimento').value = item.procedimento || "";
         if(item.grupo) document.getElementById('f-grupo').value = item.grupo.toUpperCase().trim();
