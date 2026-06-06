@@ -38,12 +38,12 @@
         
         /* BOTÕES DE NAVEGAÇÃO ESTILO NEON */
         .nav-buttons{
-display:flex;
-gap:4px;
-justify-content:center;
-flex-wrap:wrap;
-margin-bottom:5px;
-}
+            display:flex;
+            gap:4px;
+            justify-content:center;
+            flex-wrap:wrap;
+            margin-bottom:5px;
+        }
         .nav-btn { 
             background: #1f1a0e; 
             color: #FFE484; 
@@ -65,23 +65,15 @@ margin-bottom:5px;
         
         /* Botão Cadastrar com destaque especial - VERDE NEON */
         .btn-cadastrar-destaque {
-    background:#0a2e1a;
-    color:#39FF14 !important;
-
-    border:1px solid #39FF14 !important;
-
-    font-size:14px !important;
-
-    padding:8px 12px !important;
-
-    text-shadow:0 0 5px #39FF14;
-
-    box-shadow:
-    0 0 8px #39FF14,
-    inset 0 0 2px #39FF14 !important;
-
-    animation:pulseGreen 1.5s infinite;
-}
+            background:#0a2e1a;
+            color:#39FF14 !important;
+            border:1px solid #39FF14 !important;
+            font-size:14px !important;
+            padding:8px 12px !important;
+            text-shadow:0 0 5px #39FF14;
+            box-shadow:0 0 8px #39FF14, inset 0 0 2px #39FF14 !important;
+            animation:pulseGreen 1.5s infinite;
+        }
         .btn-cadastrar-destaque:hover {
             background: #145c2e !important;
             box-shadow: 0 0 20px #39FF14, inset 0 0 6px #39FF14 !important;
@@ -291,7 +283,7 @@ margin-bottom:5px;
         }
         
         /* título da lista com efeito neon */
-        #list-title {
+        #list-title, #atividade-title {
             font-size: 16px;
             margin-bottom: 14px;
             color: #FFE484;
@@ -320,1031 +312,747 @@ margin-bottom:5px;
 </head>
 <body>
 
-<div id="login-screen"
-style="
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:linear-gradient(145deg,#111,#222);
-z-index:999999;
-display:flex;
-justify-content:center;
-align-items:center;
-">
-
-<div style="
-width:340px;
-background:#000;
-padding:25px;
-border-radius:18px;
-border:2px solid #FFD966;
-box-shadow:0 0 20px rgba(255,215,0,.4);
-">
-
-<h2 style="
-text-align:center;
-margin-bottom:20px;
-color:#FFE484;
-text-shadow:0 0 8px gold;
-">
-
-VEÍCULOS UNISP NBO
-
-</h2>
-
-<input
-id="login-user"
-class="form-control"
-placeholder="Usuário"
->
-
-<br><br>
-
-<input
-id="login-pass"
-class="form-control"
-type="password"
-placeholder="Senha"
->
-
-<br><br>
-
-<button
-class="btn-submit"
-onclick="fazerLogin()"
->
-
-ENTRAR
-
-</button>
-
+<div id="login-screen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(145deg,#111,#222);z-index:999999;display:flex;justify-content:center;align-items:center;">
+    <div style="width:340px;background:#000;padding:25px;border-radius:18px;border:2px solid #FFD966;box-shadow:0 0 20px rgba(255,215,0,.4);">
+        <h2 style="text-align:center;margin-bottom:20px;color:#FFE484;text-shadow:0 0 8px gold;">VEÍCULOS UNISP NBO</h2>
+        <input id="login-user" class="form-control" placeholder="Usuário"><br><br>
+        <input id="login-pass" class="form-control" type="password" placeholder="Senha"><br><br>
+        <button class="btn-submit" onclick="fazerLogin()">ENTRAR</button>
+    </div>
 </div>
 
-</div>
+<div id="loading">Sincronizando com a Base de Dados de NBO...</div>
 
-    <div id="loading">Sincronizando com a Base de Dados de NBO...</div>
+<header>
+    <h1>🚗 VEÍCULOS UNISP NBO</h1>
+    <div class="nav-buttons">
+        <button class="nav-btn" onclick="logoutSistema()">🚪 SAIR</button>
+        <button class="nav-btn" onclick="alterarSenhaUsuario()">🔑 SENHA</button>
+        <button class="nav-btn active" onclick="switchPage('dashboard')">📊 Dashboard</button>
+        <button class="nav-btn" onclick="switchPage('atividade')">📋 ATIVIDADES</button>
+        <button class="nav-btn btn-cadastrar-destaque" onclick="limparEIrParaCadastro()">➕ CADASTRAR</button>
+        <button class="nav-btn counter-badge">🚚 Total: <span id="lbl-total">0</span></button>
+    </div>
+</header>
 
-    <header>
-        <h1>🚗 VEÍCULOS UNISP NBO</h1>
-        <div class="nav-buttons">
-
-<button
-class="nav-btn"
-onclick="logoutSistema()"
->
-
-🚪 SAIR
-
-</button>
-
-<button
-class="nav-btn"
-onclick="alterarSenhaUsuario()"
->
-
-🔑 SENHA
-
-</button>
-            <button class="nav-btn active" onclick="switchPage('dashboard')">📊 Dashboard</button>
-            <button class="nav-btn btn-cadastrar-destaque" onclick="limparEIrParaCadastro()">➕ CADASTRAR</button>
-            <button class="nav-btn counter-badge">🚚 Total: <span id="lbl-total">0</span></button>
+<div id="page-dashboard" class="page active">
+    <div class="cards-grid">
+        <div class="card" onclick="openList('MOTO', 'COM', 'PENDENTE')">
+            <h3>🏍️ MOTOCICLETAS COM PLACA</h3>
+            <div class="value" id="card-moto-com">0</div>
         </div>
-    </header>
-
-    <div id="page-dashboard" class="page active">
-        <div class="cards-grid">
-            <div class="card" onclick="openList('MOTO', 'COM', 'PENDENTE')">
-                <h3>🏍️ MOTOCICLETAS COM PLACA</h3>
-                <div class="value" id="card-moto-com">0</div>
-            </div>
-            <div class="card" onclick="openList('MOTO', 'SEM', 'PENDENTE')">
-                <h3>🏍️ MOTOCICLETAS SEM PLACA</h3>
-                <div class="value" id="card-moto-sem">0</div>
-            </div>
-            <div class="card" onclick="openList('MOTONETA', 'COM', 'PENDENTE')">
-                <h3>🛵 MOTONETAS COM PLACA</h3>
-                <div class="value" id="card-motoneta-com">0</div>
-            </div>
-            <div class="card" onclick="openList('MOTONETA', 'SEM', 'PENDENTE')">
-                <h3>🛵 MOTONETAS SEM PLACA</h3>
-                <div class="value" id="card-motoneta-sem">0</div>
-            </div>
-            <div class="card" onclick="openList('CARRO', 'COM', 'PENDENTE')">
-                <h3>🚗 CARROS COM PLACA</h3>
-                <div class="value" id="card-carro-com">0</div>
-            </div>
-            <div class="card" onclick="openList('CARRO', 'SEM', 'PENDENTE')">
-                <h3>🚗 CARROS SEM PLACA</h3>
-                <div class="value" id="card-carro-sem">0</div>
-            </div>
-            <div class="card" onclick="acessarRestituicao()">
-    <h3>📋 RESTITUIR VEÍCULO</h3>
-    <div class="value" id="card-restituir-p">0</div>
-</div>
-            <div class="card" onclick="openList('ALL', 'ALL', 'RESTITUIDO')">
-                <h3>✅ VEÍCULOS RESTITUÍDOS</h3>
-                <div class="value" id="card-restituidos-total">0</div>
-            </div>
-            <div class="card" onclick="openList('PROC_SEM_BO', 'ALL', 'PENDENTE')">
-                <h3>📄 SEM BO</h3>
-                <div class="value" id="card-sem-bo">0</div>
-            </div>
-            <div class="card" onclick="openList('PROC_COM_BO', 'ALL', 'PENDENTE')">
-                <h3>📄 COM BO</h3>
-                <div class="value" id="card-com-bo">0</div>
-            </div>
+        <div class="card" onclick="openList('MOTO', 'SEM', 'PENDENTE')">
+            <h3>🏍️ MOTOCICLETAS SEM PLACA</h3>
+            <div class="value" id="card-moto-sem">0</div>
+        </div>
+        <div class="card" onclick="openList('MOTONETA', 'COM', 'PENDENTE')">
+            <h3>🛵 MOTONETAS COM PLACA</h3>
+            <div class="value" id="card-motoneta-com">0</div>
+        </div>
+        <div class="card" onclick="openList('MOTONETA', 'SEM', 'PENDENTE')">
+            <h3>🛵 MOTONETAS SEM PLACA</h3>
+            <div class="value" id="card-motoneta-sem">0</div>
+        </div>
+        <div class="card" onclick="openList('CARRO', 'COM', 'PENDENTE')">
+            <h3>🚗 CARROS COM PLACA</h3>
+            <div class="value" id="card-carro-com">0</div>
+        </div>
+        <div class="card" onclick="openList('CARRO', 'SEM', 'PENDENTE')">
+            <h3>🚗 CARROS SEM PLACA</h3>
+            <div class="value" id="card-carro-sem">0</div>
+        </div>
+        <div class="card" onclick="acessarRestituicao()">
+            <h3>📋 RESTITUIR VEÍCULO</h3>
+            <div class="value" id="card-restituir-p">0</div>
+        </div>
+        <div class="card" onclick="openList('ALL', 'ALL', 'RESTITUIDO')">
+            <h3>✅ VEÍCULOS RESTITUÍDOS</h3>
+            <div class="value" id="card-restituidos-total">0</div>
+        </div>
+        <div class="card" onclick="openList('PROC_SEM_BO', 'ALL', 'PENDENTE')">
+            <h3>📄 SEM BO</h3>
+            <div class="value" id="card-sem-bo">0</div>
+        </div>
+        <div class="card" onclick="openList('PROC_COM_BO', 'ALL', 'PENDENTE')">
+            <h3>📄 COM BO</h3>
+            <div class="value" id="card-com-bo">0</div>
         </div>
     </div>
+</div>
 
-    <div id="page-cadastrar" class="page">
-        <input type="hidden" id="f-id-edicao" value="">
+<div id="page-cadastrar" class="page">
+    <input type="hidden" id="f-id-edicao" value="">
+    <form id="form-cadastro" onsubmit="handleFormSubmit(event)">
+        <div class="form-group">
+            <label>Lacre</label>
+            <input type="text" id="f-lacre" class="form-control" disabled>
+        </div>
+        <div class="form-group"><label>Data Entrada</label><input type="date" id="f-dataentrada" class="form-control"></div>
+        <div class="form-group"><label>Recebedor</label><input type="text" id="f-recebedor" class="form-control"></div>
+        <div class="form-group"><label>Procedimento</label><input type="text" id="f-procedimento" class="form-control"></div>
         
-        <form id="form-cadastro" onsubmit="handleFormSubmit(event)">
-            <div class="form-group">
-                <label>Lacre</label>
-                <input type="text" id="f-lacre" class="form-control" disabled>
-            </div>
-            <div class="form-group"><label>Data Entrada</label><input type="date" id="f-dataentrada" class="form-control"></div>
-            <div class="form-group"><label>Recebedor</label><input type="text" id="f-recebedor" class="form-control"></div>
-            <div class="form-group"><label>Procedimento</label><input type="text" id="f-procedimento" class="form-control"></div>
-            
-            <div class="form-group">
-                <label>Grupo</label>
-                <select id="f-grupo" class="form-control" required>
-                    <option value="MOTOCICLETA">MOTOCICLETA</option>
-                    <option value="MOTONETA">MOTONETA</option>
-                    <option value="CARRO">CARRO</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>Classe</label>
-                <select id="f-classe" class="form-control" required>
-                    <option value="COM PLACA">COM PLACA</option>
-                    <option value="SEM PLACA">SEM PLACA</option>
-                </select>
-            </div>
-            
-            <div class="form-group"><label>Placa</label><input type="text" id="f-placa" class="form-control"></div>
-            <div class="form-group"><label>Marca</label><input type="text" id="f-marca" class="form-control"></div>
-            <div class="form-group"><label>Modelo</label><input type="text" id="f-modelo" class="form-control"></div>
-            <div class="form-group"><label>Cor</label><input type="text" id="f-cor" class="form-control"></div>
-            <div class="form-group"><label>Chassi</label><input type="text" id="f-chassi" class="form-control"></div>
-            <div class="form-group"><label>Motor</label><input type="text" id="f-motor" class="form-control"></div>
-            
-            <!-- Campo de imagem oculto (mantido apenas para compatibilidade, mas não visível ao usuário) -->
-            <div class="form-group" style="display: none;">
-                <label>Imagem</label>
-                <div class="media-actions">
-                    <button type="button" class="media-btn" onclick="triggerInput('camera')">📸 ABRIR CÂMERA</button>
-                    <button type="button" class="media-btn" onclick="triggerInput('galeria')">📁 GALERIA</button>
-                </div>
-                <input type="file" id="input-camera" accept="image/*" capture="environment" style="display:none" onchange="previewMedia(this)">
-                <input type="file" id="input-galeria" accept="image/*" style="display:none" onchange="previewMedia(this)">
-                <img id="preview-img" alt="Preview">
-            </div>
-
-            <div class="form-group"><label>Nota</label><input type="text" id="f-nota" class="form-control"></div>
-            
-            <!-- Campos que serão exibidos condicionalmente -->
-            <div id="div-datasaida" class="form-group hidden-field">
-                <label>Data Saída</label>
-                <input type="date" id="f-datasaida" class="form-control">
-            </div>
-            <div id="div-servidor" class="form-group hidden-field">
-                <label>Servidor</label>
-                <input type="text" id="f-servidor" class="form-control">
-            </div>
-            <div id="div-documento" class="form-group hidden-field">
-                <label>Documento</label>
-                <input type="text" id="f-documento" class="form-control">
-            </div>
-
-            <div class="form-actions-container">
-                <button type="submit" id="btn-salvar-principal" class="btn-submit">💾 SALVAR CADASTRO</button>
-                <button type="button" class="btn-cancel" onclick="cancelarFormulario()">❌ CANCELAR</button>
-            </div>
-        </form>
-    </div>
-
-    <div id="page-list" class="page">
-        <div class="list-header">
-            <button class="nav-btn" onclick="switchPage('dashboard')">⬅️ Voltar</button>
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="Pesquisar placa, modelo...">
-            </div>
+        <div class="form-group">
+            <label>Grupo</label>
+            <select id="f-grupo" class="form-control" required>
+                <option value="MOTOCICLETA">MOTOCICLETA</option>
+                <option value="MOTONETA">MOTONETA</option>
+                <option value="CARRO">CARRO</option>
+            </select>
         </div>
-        <h2 id="list-title" style="font-size:14px; margin-bottom:10px; padding-left: 5px;">Lista</h2>
-        <div id="list-container" class="list-container"></div>
-    </div>
-
-    <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyfb-7NTxVigzKqFa6WkrOcnbEsIdJP4e01A1DRFVGyToqAmq4EVQdp-rjo9ML4NASOXQ/exec';
         
-let localData = [];
-
-let currentFilter = {
-    grupo:'ALL',
-    classe:'ALL',
-    statusRestituir:'PENDENTE'
-};
-
-        // Variáveis para controle de estado do formulário
-        let isEditingFromRestituir = false;
-        let isEditingFromRestituidos = false;
-        let isViewOnlyMode = false; // Modo apenas visualização (para restituídos)
-
-        document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-document
-.getElementById(
-'search-input'
-)
-.addEventListener(
-'input',
-filterListBySearch
-);
-
-const usuarioLogado=
-
-localStorage.getItem(
-'usuarioLogado'
-);
-
-if(usuarioLogado){
-
-document
-.getElementById(
-'login-screen'
-)
-.style.display='none';
-
-fetchData();
-
-}
-
-});
-function fazerLogin(){
-
-const usuario=
-
-document
-.getElementById(
-'login-user'
-)
-.value
-.trim();
-
-const senha=
-
-document
-.getElementById(
-'login-pass'
-)
-.value
-.trim();
-
-if(
-usuario==="" ||
-senha===""
-
-){
-
-alert(
-"Preencha usuário e senha"
-);
-
-return;
-
-}
-
-toggleLoading(true);
-
-const cb=
-
-'login_'+
-Date.now();
-
-window[cb]=function(r){
-
-toggleLoading(false);
-
-if(
-r.status==='success'
-){
-
-localStorage.setItem(
-'usuarioLogado',
-r.usuario
-);
-
-localStorage.setItem(
-'nomeUsuario',
-r.nome
-);
-
-document
-.getElementById(
-'login-screen'
-)
-.style.display='none';
-
-fetchData();
-
-}else{
-
-alert(
-"Usuário ou senha inválidos"
-);
-
-}
-
-delete window[cb];
-
-};
-
-const script=
-
-document
-.createElement(
-'script'
-);
-
-script.src=
-
-`${API_URL}?action=login&usuario=${encodeURIComponent(usuario)}&senha=${encodeURIComponent(senha)}&callback=${cb}`;
-
-document.body
-.appendChild(script);
-
-}
-
-
-
-function logoutSistema(){
-
-localStorage.removeItem(
-'usuarioLogado'
-);
-
-localStorage.removeItem(
-'nomeUsuario'
-);
-
-location.reload();
-
-}
-
-
-
-function alterarSenhaUsuario(){
-
-const senhaAtual=
-prompt("Digite sua senha atual:");
-
-if(
-senhaAtual===null ||
-senhaAtual.trim()===""
-)return;
-
-const novaSenha=
-prompt("Digite a nova senha:");
-
-if(
-novaSenha===null ||
-novaSenha.trim()===""
-){
-
-alert(
-"Nova senha inválida"
-);
-
-return;
-}
-
-const confirmar=
-prompt(
-"Confirme a nova senha:"
-);
-
-if(
-confirmar!==novaSenha
-){
-
-alert(
-"As senhas não coincidem"
-);
-
-return;
-}
-
-toggleLoading(true);
-
-const usuario=
-localStorage.getItem(
-'usuarioLogado'
-);
-
-const cb=
-'alter_'+Date.now();
-
-window[cb]=function(resp){
-
-toggleLoading(false);
-
-if(
-resp.status==="success"
-){
-
-alert(
-"Senha alterada com sucesso."
-);
-
-}else{
-
-alert(
-resp.message||
-"Erro ao alterar senha."
-);
-
-}
-
-delete window[cb];
-
-};
-
-const script=
-document.createElement(
-"script"
-);
-
-script.src=
-
-`${API_URL}?action=alterarSenha&usuario=${encodeURIComponent(usuario)}&senhaAtual=${encodeURIComponent(senhaAtual)}&novaSenha=${encodeURIComponent(novaSenha)}&callback=${cb}`;
-
-document.body.appendChild(
-script
-);
-
-}
-        function switchPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
-            const targetPage = document.getElementById(`page-${pageId}`);
-            if (targetPage) targetPage.classList.add('active');
-            
-            if (pageId === 'dashboard') document.querySelectorAll('.nav-buttons .nav-btn')[0].classList.add('active');
-            if (pageId === 'cadastrar') document.querySelectorAll('.nav-buttons .nav-btn')[1].classList.add('active');
+        <div class="form-group">
+            <label>Classe</label>
+            <select id="f-classe" class="form-control" required>
+                <option value="COM PLACA">COM PLACA</option>
+                <option value="SEM PLACA">SEM PLACA</option>
+            </select>
+        </div>
+        
+        <div class="form-group"><label>Placa</label><input type="text" id="f-placa" class="form-control"></div>
+        <div class="form-group"><label>Marca</label><input type="text" id="f-marca" class="form-control"></div>
+        <div class="form-group"><label>Modelo</label><input type="text" id="f-modelo" class="form-control"></div>
+        <div class="form-group"><label>Cor</label><input type="text" id="f-cor" class="form-control"></div>
+        <div class="form-group"><label>Chassi</label><input type="text" id="f-chassi" class="form-control"></div>
+        <div class="form-group"><label>Motor</label><input type="text" id="f-motor" class="form-control"></div>
+        
+        <div class="form-group" style="display: none;">
+            <label>Imagem</label>
+            <div class="media-actions">
+                <button type="button" class="media-btn" onclick="triggerInput('camera')">📸 ABRIR CÂMERA</button>
+                <button type="button" class="media-btn" onclick="triggerInput('galeria')">📁 GALERIA</button>
+            </div>
+            <input type="file" id="input-camera" accept="image/*" capture="environment" style="display:none" onchange="previewMedia(this)">
+            <input type="file" id="input-galeria" accept="image/*" style="display:none" onchange="previewMedia(this)">
+            <img id="preview-img" alt="Preview">
+        </div>
+
+        <div class="form-group"><label>Nota</label><input type="text" id="f-nota" class="form-control"></div>
+        
+        <div id="div-datasaida" class="form-group hidden-field">
+            <label>Data Saída</label>
+            <input type="date" id="f-datasaida" class="form-control">
+        </div>
+        <div id="div-servidor" class="form-group hidden-field">
+            <label>Servidor</label>
+            <input type="text" id="f-servidor" class="form-control">
+        </div>
+        <div id="div-documento" class="form-group hidden-field">
+            <label>Documento</label>
+            <input type="text" id="f-documento" class="form-control">
+        </div>
+
+        <div class="form-actions-container">
+            <button type="submit" id="btn-salvar-principal" class="btn-submit">💾 SALVAR CADASTRO</button>
+            <button type="button" class="btn-cancel" onclick="cancelarFormulario()">❌ CANCELAR</button>
+        </div>
+    </form>
+</div>
+
+<div id="page-list" class="page">
+    <div class="list-header">
+        <button class="nav-btn" onclick="switchPage('dashboard')">⬅️ Voltar</button>
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Pesquisar placa, modelo...">
+        </div>
+    </div>
+    <h2 id="list-title" style="font-size:14px; margin-bottom:10px; padding-left:5px;">Lista</h2>
+    <div id="list-container" class="list-container"></div>
+</div>
+
+<div id="page-atividade" class="page">
+    <div class="list-header">
+        <button class="nav-btn" onclick="switchPage('dashboard')">⬅️ Voltar</button>
+        <button class="nav-btn" onclick="carregarAtividades()" style="margin-left: auto;">🔄 Atualizar</button>
+    </div>
+    <h2 id="atividade-title">📝 REGISTRO DE ATIVIDADES</h2>
+    <div id="atividade-container" class="list-container"></div>
+</div>
+
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyfb-7NTxVigzKqFa6WkrOcnbEsIdJP4e01A1DRFVGyToqAmq4EVQdp-rjo9ML4NASOXQ/exec';
+    
+    let localData = [];
+    let currentFilter = {
+        grupo:'ALL',
+        classe:'ALL',
+        statusRestituir:'PENDENTE'
+    };
+    let isEditingFromRestituir = false;
+    let isEditingFromRestituidos = false;
+    let isViewOnlyMode = false;
+    let base64Image = "";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById('search-input').addEventListener('input', filterListBySearch);
+        const usuarioLogado = localStorage.getItem('usuarioLogado');
+        if(usuarioLogado){
+            document.getElementById('login-screen').style.display = 'none';
+            fetchData();
         }
+    });
 
-        function limparEIrParaCadastro() {
-            limparFormulario();
-            
-document.getElementById('f-dataentrada').value = new Date().toISOString().split('T')[0];
-
-// Reset das flags
-            isEditingFromRestituir = false;
-            isEditingFromRestituidos = false;
-            isViewOnlyMode = false;
-            toggleRestituirFields(false);
-            enableFormFields(true); // Habilitar campos para edição (exceto lacre)
-            
-            let maxLacre = 0;
-            if (localData && localData.length > 0) {
-                localData.forEach(item => {
-                    if (item.lacre) {
-                        let num = parseInt(item.lacre.toString().replace(/\D/g, ""), 10);
-                        if (!isNaN(num) && num > maxLacre) maxLacre = num;
-                    }
-                });
+    function fazerLogin(){
+        const usuario = document.getElementById('login-user').value.trim();
+        const senha = document.getElementById('login-pass').value.trim();
+        if(usuario === "" || senha === ""){
+            alert("Preencha usuário e senha");
+            return;
+        }
+        toggleLoading(true);
+        const cb = 'login_' + Date.now();
+        window[cb] = function(r){
+            toggleLoading(false);
+            if(r.status === 'success'){
+                localStorage.setItem('usuarioLogado', r.usuario);
+                localStorage.setItem('nomeUsuario', r.nome);
+                document.getElementById('login-screen').style.display = 'none';
+                fetchData();
+            }else{
+                alert("Usuário ou senha inválidos");
             }
-            document.getElementById('f-lacre').value = maxLacre > 0 ? (maxLacre + 1) : "";
-            switchPage('cadastrar');
+            delete window[cb];
+        };
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=login&usuario=${encodeURIComponent(usuario)}&senha=${encodeURIComponent(senha)}&callback=${cb}`;
+        document.body.appendChild(script);
+    }
+
+    function logoutSistema(){
+        localStorage.removeItem('usuarioLogado');
+        localStorage.removeItem('nomeUsuario');
+        location.reload();
+    }
+
+    function alterarSenhaUsuario(){
+        const senhaAtual = prompt("Digite sua senha atual:");
+        if(senhaAtual === null || senhaAtual.trim() === "") return;
+        const novaSenha = prompt("Digite a nova senha:");
+        if(novaSenha === null || novaSenha.trim() === ""){
+            alert("Nova senha inválida");
+            return;
         }
-
-        function cancelarFormulario() {
-            limparFormulario();
-            isEditingFromRestituir = false;
-            isEditingFromRestituidos = false;
-            isViewOnlyMode = false;
-            toggleRestituirFields(false);
-            enableFormFields(true);
-            switchPage('dashboard');
+        const confirmar = prompt("Confirme a nova senha:");
+        if(confirmar !== novaSenha){
+            alert("As senhas não coincidem");
+            return;
         }
+        toggleLoading(true);
+        const usuario = localStorage.getItem('usuarioLogado');
+        const cb = 'alter_' + Date.now();
+        window[cb] = function(resp){
+            toggleLoading(false);
+            if(resp.status === "success"){
+                alert("Senha alterada com sucesso.");
+            }else{
+                alert(resp.message || "Erro ao alterar senha.");
+            }
+            delete window[cb];
+        };
+        const script = document.createElement("script");
+        script.src = `${API_URL}?action=alterarSenha&usuario=${encodeURIComponent(usuario)}&senhaAtual=${encodeURIComponent(senhaAtual)}&novaSenha=${encodeURIComponent(novaSenha)}&callback=${cb}`;
+        document.body.appendChild(script);
+    }
 
-        function toggleLoading(show) {
-            document.getElementById('loading').style.display = show ? 'flex' : 'none';
+    function switchPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        
+        const targetPage = document.getElementById(`page-${pageId}`);
+        if (targetPage) targetPage.classList.add('active');
+        
+        if(pageId === 'atividade') {
+            carregarAtividades();
         }
-
-        function fetchData() {
-            toggleLoading(true);
-            const callbackName = 'jsonpCallback_' + Date.now();
-            
-            window[callbackName] = function(response) {
-                if (response && response.status === 'success' && response.data) {
-                    localData = response.data;
-                    updateDashboardCounters();
-                } else {
-                    alert("Dados recebidos em formato inválido ou planilha vazia.");
-                }
-                toggleLoading(false);
-                delete window[callbackName];
-                const el = document.getElementById(callbackName);
-                if(el) el.remove();
-            };
-
-            const script = document.createElement('script');
-            script.id = callbackName;
-            script.src = `${API_URL}?action=getData&callback=${callbackName}&_nocache=${Date.now()}`;
-            script.onerror = () => { toggleLoading(false); alert("Falha de comunicação externa."); };
-            document.body.appendChild(script);
+        
+        if (pageId === 'dashboard') {
+            document.querySelectorAll('.nav-buttons .nav-btn')[2].classList.add('active');
         }
-
-        function checkGrupo(text, target) {
-            const t = (text || "").toString().toLowerCase().trim();
-            if (target === 'MOTO') return t.includes('moto') && !t.includes('motoneta');
-            if (target === 'MOTONETA') return t.includes('motoneta');
-            if (target === 'CARRO') return t.includes('carro') || t.includes('via') || t.includes('auto');
-            return false;
+        if (pageId === 'cadastrar') {
+            document.querySelectorAll('.nav-buttons .nav-btn')[4].classList.add('active');
         }
+    }
 
-        function checkClasse(text, target) {
-            const t = (text || "").toString().toLowerCase().trim();
-            if (target === 'COM') return t.includes('com') && !t.includes('sem');
-            if (target === 'SEM') return t.includes('sem');
-            return false;
-        }
-
-        function updateDashboardCounters() {
-            document.getElementById('lbl-total').innerText = localData.length;
-            const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0, sem_bo: 0, com_bo: 0 };
-
+    function limparEIrParaCadastro() {
+        limparFormulario();
+        document.getElementById('f-dataentrada').value = new Date().toISOString().split('T')[0];
+        isEditingFromRestituir = false;
+        isEditingFromRestituidos = false;
+        isViewOnlyMode = false;
+        toggleRestituirFields(false);
+        enableFormFields(true);
+        
+        let maxLacre = 0;
+        if (localData && localData.length > 0) {
             localData.forEach(item => {
-                const g = item.grupo || "";
-                const c = item.classe || "";
-                const p = (item.procedimento || "").toString().toUpperCase().trim();
-                const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
-
-                if (r) {
-                    counts.restituidos++;
-                } else {
-                    counts.pendentes++;
-                    if (checkGrupo(g, 'MOTO') && checkClasse(c, 'COM')) counts.moto_com++;
-                    if (checkGrupo(g, 'MOTO') && checkClasse(c, 'SEM')) counts.moto_sem++;
-                    if (checkGrupo(g, 'MOTONETA') && checkClasse(c, 'COM')) counts.motoneta_com++;
-                    if (checkGrupo(g, 'MOTONETA') && checkClasse(c, 'SEM')) counts.motoneta_sem++;
-                    if (checkGrupo(g, 'CARRO') && checkClasse(c, 'COM')) counts.carro_com++;
-                    if (checkGrupo(g, 'CARRO') && checkClasse(c, 'SEM')) counts.carro_sem++;
-                    if (p.includes("SEM BO")) counts.sem_bo++; else counts.com_bo++;
+                if (item.lacre) {
+                    let num = parseInt(item.lacre.toString().replace(/\D/g, ""), 10);
+                    if (!isNaN(num) && num > maxLacre) maxLacre = num;
                 }
             });
-            document.getElementById('card-moto-com').innerText = counts.moto_com;
-            document.getElementById('card-moto-sem').innerText = counts.moto_sem;
-            document.getElementById('card-motoneta-com').innerText = counts.motoneta_com;
-            document.getElementById('card-motoneta-sem').innerText = counts.motoneta_sem;
-            document.getElementById('card-carro-com').innerText = counts.carro_com;
-            document.getElementById('card-carro-sem').innerText = counts.carro_sem;
-            document.getElementById('card-restituir-p').innerText = counts.pendentes;
-            document.getElementById('card-restituidos-total').innerText = counts.restituidos;
-            document.getElementById('card-sem-bo').innerText = counts.sem_bo;
-            document.getElementById('card-com-bo').innerText = counts.com_bo;
         }
+        document.getElementById('f-lacre').value = maxLacre > 0 ? (maxLacre + 1) : "";
+        switchPage('cadastrar');
+    }
 
-        function openList(grupo, classe, statusRestituir) {
-            currentFilter = { grupo, classe, statusRestituir };
-            let titulo = `${grupo}S (${classe} PLACA)`;
-            if (statusRestituir === 'PENDENTE' && grupo === 'ALL') titulo = "Restituir Veículo (Pendentes)";
-            if (statusRestituir === 'RESTITUIDO') titulo = "Veículos Já Restituídos";
-            if (grupo === 'PROC_SEM_BO') titulo = "Cadastros SEM BO";
-            if (grupo === 'PROC_COM_BO') titulo = "Cadastros COM BO";
-            document.getElementById('list-title').innerText = titulo;
-            document.getElementById('search-input').value = ""; 
-            renderList(filterData(localData));
-            switchPage('list');
-        }
+    function cancelarFormulario() {
+        limparFormulario();
+        isEditingFromRestituir = false;
+        isEditingFromRestituidos = false;
+        isViewOnlyMode = false;
+        toggleRestituirFields(false);
+        enableFormFields(true);
+        switchPage('dashboard');
+    }
 
-        function filterData(dataArray) {
-            return dataArray.filter(item => {
-                const g = item.grupo || "";
-                const c = item.classe || "";
-                const p = (item.procedimento || "").toString().toUpperCase().trim();
-                const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
-                if (currentFilter.statusRestituir === 'RESTITUIDO') return r;
-                if (currentFilter.grupo === 'PROC_SEM_BO') return p.includes("SEM BO") && !r;
-                if (currentFilter.grupo === 'PROC_COM_BO') return !p.includes("SEM BO") && !r;
-                if (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL') return !r;
-                return checkGrupo(g, currentFilter.grupo) && checkClasse(c, currentFilter.classe) && !r;
-            });
-        }
+    function toggleLoading(show) {
+        document.getElementById('loading').style.display = show ? 'flex' : 'none';
+    }
 
-        function renderList(items) {
-            const container = document.getElementById('list-container');
-            container.innerHTML = "";
-            if (items.length === 0) {
-                container.innerHTML = "<p style='text-align:center; padding:20px; color:#FFD966; font-weight:bold;'>Nenhum veículo encontrado nesta seção.</p>";
-                return;
-            }
-            
-            // Verifica se a lista atual é a de "Restituir Veículo (Pendentes)"
-            const isRestituirPendentes = (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL');
-            // Verifica se a lista atual é a de "Veículos Já Restituídos"
-            const isRestituidos = (currentFilter.statusRestituir === 'RESTITUIDO');
-            
-            items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'item-card';
-                let imgHtml = "";
-                if (item.imagem && item.imagem.toString().startsWith("data:image")) {
-                    imgHtml = `<img src="${item.imagem}" class="item-thumb" alt="Foto">`;
-                }
-                const isRestituido = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
-                
-                // Botão Confirmar Restituição: Só exibido se for na aba RESTITUIR VEÍCULO (Pendentes) e o item ainda NÃO estiver restituído
-                let btnRestituir = "";
-                if (isRestituirPendentes && !isRestituido) {
-                    btnRestituir = `<button class="btn-restituir-action" onclick="executarRestituição('${item.id}')">🔄 Confirmar Restituição</button>`;
-                } else if (isRestituido && isRestituirPendentes) {
-                    btnRestituir = `<span style="color:#33FF99; font-weight:bold; font-size:12px; display:block; margin-top:8px; text-shadow:0 0 3px #00aa66;">✅ Restituído</span>`;
-                } else if (isRestituido && !isRestituirPendentes) {
-                    btnRestituir = `<span style="color:#33FF99; font-weight:bold; font-size:12px; display:block; margin-top:8px; text-shadow:0 0 3px #00aa66;">✅ Restituído</span>`;
-                }
-                
-                // Botão Editar: Oculto na aba "Veículos Já Restituídos" (apenas visualização)
-                let btnEditar = "";
-                if (!isRestituidos) {
-                    btnEditar = `<button class="btn-editar-action" onclick="iniciarEdicao('${item.id}', false)">✏️ Editar</button>`;
-                }
-                
-                const botoesAcao = `<div class="item-actions">${btnRestituir}${btnEditar}</div>`;
-                
-                // Adiciona informações extras se for veículo restituído (Data Saída, Servidor, Documento)
-                let extraInfo = "";
-                if (isRestituido) {
-                    if (item.datasaida) extraInfo += `<p><strong>Data Saída:</strong> ${item.datasaida}</p>`;
-                    if (item.servidor) extraInfo += `<p><strong>Servidor:</strong> ${item.servidor}</p>`;
-                    if (item.documento) extraInfo += `<p><strong>Documento:</strong> ${item.documento}</p>`;
-                }
-                
-                card.innerHTML = `${imgHtml}<p><strong>Lacre:</strong> ${item.lacre || 'Sem lacre'}</p><p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p><p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${item.dataentrada || ''}</p><p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p><p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>${extraInfo}${botoesAcao}`;
-                container.appendChild(card);
-            });
-        }
-
-        function toggleRestituirFields(show) {
-            const divDataSaida = document.getElementById('div-datasaida');
-            const divServidor = document.getElementById('div-servidor');
-            const divDocumento = document.getElementById('div-documento');
-            
-            if (show) {
-                divDataSaida.classList.remove('hidden-field');
-                divServidor.classList.remove('hidden-field');
-                divDocumento.classList.remove('hidden-field');
-            } else {
-                divDataSaida.classList.add('hidden-field');
-                divServidor.classList.add('hidden-field');
-                divDocumento.classList.add('hidden-field');
-            }
-        }
+    function fetchData() {
+        toggleLoading(true);
+        const callbackName = 'jsonpCallback_' + Date.now();
         
-        function enableFormFields(enable) {
-            // Habilita/desabilita todos os campos editáveis (exceto LACRE que é sempre desabilitado)
-            const editableFields = ['f-dataentrada', 'f-recebedor', 'f-procedimento', 'f-grupo', 'f-classe', 
-                                    'f-placa', 'f-marca', 'f-modelo', 'f-cor', 'f-chassi', 'f-motor', 
-                                    'f-nota', 'f-datasaida', 'f-servidor', 'f-documento'];
-            
-            editableFields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (field) {
-                    if (enable) {
-                        field.disabled = false;
-                    } else {
-                        field.disabled = true;
-                    }
-                }
-            });
-        }
-
-        function iniciarEdicao(id, isViewOnly = false) {
-            const item = localData.find(v => v.id.toString() === id.toString());
-            if (!item) return;
-            
-            // Verifica se estamos na aba "Restituir Veículo (Pendentes)"
-            const isFromRestituirTab = (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL');
-            // Verifica se estamos na aba "Veículos Já Restituídos"
-            const isFromRestituidosTab = (currentFilter.statusRestituir === 'RESTITUIDO');
-            
-            isEditingFromRestituir = isFromRestituirTab;
-            isEditingFromRestituidos = isFromRestituidosTab;
-            
-            // Se for da aba Restituídos, é modo apenas visualização
-            isViewOnlyMode = isFromRestituidosTab;
-            
-            // Exibe os campos extras se for da aba Restituir OU da aba Restituídos
-            const shouldShowExtraFields = isFromRestituirTab || isFromRestituidosTab;
-            toggleRestituirFields(shouldShowExtraFields);
-            
-            // Se for modo visualização (restituídos), desabilita edição de todos os campos
-            if (isViewOnlyMode) {
-                enableFormFields(false);
-                const btnSalvar = document.getElementById('btn-salvar-principal');
-                btnSalvar.style.display = 'none'; // Oculta botão salvar em modo visualização
+        window[callbackName] = function(response) {
+            if (response && response.status === 'success' && response.data) {
+                localData = response.data;
+                updateDashboardCounters();
             } else {
-                enableFormFields(true);
-                const btnSalvar = document.getElementById('btn-salvar-principal');
-                btnSalvar.style.display = 'flex';
+                alert("Dados recebidos em formato inválido ou planilha vazia.");
             }
-            
-            document.getElementById('f-id-edicao').value = item.id;
-            document.getElementById('f-lacre').value = item.lacre || "";
-            document.getElementById('f-dataentrada').value = item.dataentrada || "";
-            document.getElementById('f-recebedor').value = item.recebedor || "";
-            document.getElementById('f-procedimento').value = item.procedimento || "";
-            if(item.grupo) document.getElementById('f-grupo').value = item.grupo.toUpperCase().trim();
-            if(item.classe) document.getElementById('f-classe').value = item.classe.toUpperCase().trim();
-            document.getElementById('f-placa').value = item.placa || "";
-            document.getElementById('f-marca').value = item.marca || "";
-            document.getElementById('f-modelo').value = item.modelo || "";
-            document.getElementById('f-cor').value = item.cor || "";
-            document.getElementById('f-chassi').value = item.chassi || "";
-            document.getElementById('f-motor').value = item.motor || "";
-            if (item.imagem && item.imagem.toString().startsWith("data:image")) {
-                base64Image = item.imagem;
-            } else { base64Image = ""; }
-            document.getElementById('f-nota').value = item.nota || "";
-            document.getElementById('f-datasaida').value = item.datasaida || "";
-            document.getElementById('f-servidor').value = item.servidor || "";
-            document.getElementById('f-documento').value = item.documento || "";
-            
-            const btnSalvar = document.getElementById('btn-salvar-principal');
-            if (!isViewOnlyMode) {
-                btnSalvar.innerText = "💾 SALVAR EDIÇÃO";
-                btnSalvar.classList.add('edit-mode');
+            toggleLoading(false);
+            delete window[callbackName];
+            const el = document.getElementById(callbackName);
+            if(el) el.remove();
+        };
+
+        const script = document.createElement('script');
+        script.id = callbackName;
+        script.src = `${API_URL}?action=getData&callback=${callbackName}&_nocache=${Date.now()}`;
+        script.onerror = () => { toggleLoading(false); alert("Falha de comunicação externa."); };
+        document.body.appendChild(script);
+    }
+
+    function checkGrupo(text, target) {
+        const t = (text || "").toString().toLowerCase().trim();
+        if (target === 'MOTO') return t.includes('moto') && !t.includes('motoneta');
+        if (target === 'MOTONETA') return t.includes('motoneta');
+        if (target === 'CARRO') return t.includes('carro') || t.includes('via') || t.includes('auto');
+        return false;
+    }
+
+    function checkClasse(text, target) {
+        const t = (text || "").toString().toLowerCase().trim();
+        if (target === 'COM') return t.includes('com') && !t.includes('sem');
+        if (target === 'SEM') return t.includes('sem');
+        return false;
+    }
+
+    function updateDashboardCounters() {
+        document.getElementById('lbl-total').innerText = localData.length;
+        const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0, sem_bo: 0, com_bo: 0 };
+
+        localData.forEach(item => {
+            const g = item.grupo || "";
+            const c = item.classe || "";
+            const p = (item.procedimento || "").toString().toUpperCase().trim();
+            const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
+
+            if (r) {
+                counts.restituidos++;
+            } else {
+                counts.pendentes++;
+                if (checkGrupo(g, 'MOTO') && checkClasse(c, 'COM')) counts.moto_com++;
+                if (checkGrupo(g, 'MOTO') && checkClasse(c, 'SEM')) counts.moto_sem++;
+                if (checkGrupo(g, 'MOTONETA') && checkClasse(c, 'COM')) counts.motoneta_com++;
+                if (checkGrupo(g, 'MOTONETA') && checkClasse(c, 'SEM')) counts.motoneta_sem++;
+                if (checkGrupo(g, 'CARRO') && checkClasse(c, 'COM')) counts.carro_com++;
+                if (checkGrupo(g, 'CARRO') && checkClasse(c, 'SEM')) counts.carro_sem++;
+                if (p.includes("SEM BO")) counts.sem_bo++; else counts.com_bo++;
             }
-            switchPage('cadastrar');
-        }
+        });
+        document.getElementById('card-moto-com').innerText = counts.moto_com;
+        document.getElementById('card-moto-sem').innerText = counts.moto_sem;
+        document.getElementById('card-motoneta-com').innerText = counts.motoneta_com;
+        document.getElementById('card-motoneta-sem').innerText = counts.motoneta_sem;
+        document.getElementById('card-carro-com').innerText = counts.carro_com;
+        document.getElementById('card-carro-sem').innerText = counts.carro_sem;
+        document.getElementById('card-restituir-p').innerText = counts.pendentes;
+        document.getElementById('card-restituidos-total').innerText = counts.restituidos;
+        document.getElementById('card-sem-bo').innerText = counts.sem_bo;
+        document.getElementById('card-com-bo').innerText = counts.com_bo;
+    }
 
-function filterListBySearch() {
-    const query = document.getElementById('search-input').value
-        .toLowerCase()
-        .trim();
+    function openList(grupo, classe, statusRestituir) {
+        currentFilter = { grupo, classe, statusRestituir };
+        let titulo = `${grupo}S (${classe} PLACA)`;
+        if (statusRestituir === 'PENDENTE' && grupo === 'ALL') titulo = "Restituir Veículo (Pendentes)";
+        if (statusRestituir === 'RESTITUIDO') titulo = "Veículos Já Restituídos";
+        if (grupo === 'PROC_SEM_BO') titulo = "Cadastros SEM BO";
+        if (grupo === 'PROC_COM_BO') titulo = "Cadastros COM BO";
+        document.getElementById('list-title').innerText = titulo;
+        document.getElementById('search-input').value = ""; 
+        renderList(filterData(localData));
+        switchPage('list');
+    }
 
-    // sempre pega os dados corretos da aba atual
-    let filtered = filterData(localData);
-
-    if (query !== "") {
-        filtered = filtered.filter(item => {
-
-            const textoPesquisa = [
-                item.placa,
-                item.modelo,
-                item.marca,
-                item.lacre,
-                item.procedimento,
-                item.cor,
-                item.chassi,
-                item.motor,
-                item.nota,
-                item.recebedor,
-                item.documento,
-                item.servidor
-            ]
-            .join(" ")
-            .toLowerCase();
-
-            return textoPesquisa.includes(query);
+    function filterData(dataArray) {
+        return dataArray.filter(item => {
+            const g = item.grupo || "";
+            const c = item.classe || "";
+            const p = (item.procedimento || "").toString().toUpperCase().trim();
+            const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
+            if (currentFilter.statusRestituir === 'RESTITUIDO') return r;
+            if (currentFilter.grupo === 'PROC_SEM_BO') return p.includes("SEM BO") && !r;
+            if (currentFilter.grupo === 'PROC_COM_BO') return !p.includes("SEM BO") && !r;
+            if (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL') return !r;
+            return checkGrupo(g, currentFilter.grupo) && checkClasse(c, currentFilter.classe) && !r;
         });
     }
 
-    renderList(filtered);
-}
-     function acessarRestituicao(){
-
-toggleLoading(true);
-
-const cb=
-
-'rest_'+
-Date.now();
-
-window[cb]=function(r){
-
-toggleLoading(false);
-
-if(
-r.status!=='success'
-){
-
-alert(
-"Erro ao buscar senha"
-);
-
-return;
-
-}
-
-const senhaDigitada=
-
-prompt(
-"Digite a senha:"
-);
-
-if(
-senhaDigitada===null
-)return;
-
-if(
-
-senhaDigitada.trim()
-!==
-
-String(
-r.senha
-).trim()
-
-){
-
-alert(
-"Senha incorreta"
-);
-
-return;
-
-}
-
-const opcao=
-
-prompt(
-
-`1 = RESTITUIR
-
-2 = ALTERAR SENHA USUÁRIO
-
-3 = SAIR`
-
-);
-
-if(opcao==="1"){
-
-openList(
-'ALL',
-'ALL',
-'PENDENTE'
-);
-
-return;
-
-}
-
-if(opcao==="2"){
-
-alterarSenhaUsuario();
-
-return;
-
-}
-
-if(opcao==="3"){
-
-logoutSistema();
-
-return;
-
-}
-
-};
-
-const script=
-
-document
-.createElement(
-'script'
-);
-
-script.src=
-
-`${API_URL}?action=getSenhaRestituicao&callback=${cb}`;
-
-document.body
-.appendChild(
-script
-);
-
-}
-
-
-function trocarSenhaRestituicao(){
-
-    const novaSenha =
-    prompt(
-        "Digite a nova senha:"
-    );
-
-    if(
-        novaSenha===null ||
-        novaSenha.trim()===""
-    ){
-
-        alert(
-            "Senha inválida."
-        );
-
-        return;
-    }
-
-
-    senhaRestituicao =
-    novaSenha.trim();
-
-
-    localStorage.setItem(
-        'senhaRestituicao',
-        senhaRestituicao
-    );
-
-
-    alert(
-        "Senha alterada com sucesso."
-    );
-
-}
-  function executarRestituição(id) {
-            if (!confirm(`Deseja confirmar a restituição deste veículo?`)) return;
-            toggleLoading(true);
-            const callbackName = 'jsonp_rest_' + Date.now();
-            window[callbackName] = function(response) {
-                if (response && response.status === 'success') {
-                    alert('Veículo restituído com sucesso na planilha!');
-                    fetchData();
-                    switchPage('dashboard');
-                } else { alert('Erro ao processar restituição.'); toggleLoading(false); }
-                delete window[callbackName];
-                const el = document.getElementById(callbackName); if(el) el.remove();
-            };
-            const script = document.createElement('script');
-            script.id = callbackName;
-            script.src = `${API_URL}?action=restituir&id=${id}&callback=${callbackName}`;
-            document.body.appendChild(script);
+    function renderList(items) {
+        const container = document.getElementById('list-container');
+        container.innerHTML = "";
+        if (items.length === 0) {
+            container.innerHTML = "<p style='text-align:center; padding:20px; color:#FFD966; font-weight:bold;'>Nenhum veículo encontrado nesta seção.</p>";
+            return;
         }
-
-        let base64Image = "";
-        function triggerInput(type) { }
-        function previewMedia(input) { }
-
-        function handleFormSubmit(event) {
-            event.preventDefault();
+        
+        const isRestituirPendentes = (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL');
+        const isRestituidos = (currentFilter.statusRestituir === 'RESTITUIDO');
+        
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            let imgHtml = "";
+            if (item.imagem && item.imagem.toString().startsWith("data:image")) {
+                imgHtml = `<img src="${item.imagem}" class="item-thumb" alt="Foto">`;
+            }
+            const isRestituido = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
             
-            // Se estiver em modo visualização (restituídos), não permite salvar
-            if (isViewOnlyMode) {
-                alert("Este é um registro de veículo já restituído. Para alterar, utilize a edição na aba de pendentes.");
-                return;
+            let btnRestituir = "";
+            if (isRestituirPendentes && !isRestituido) {
+                btnRestituir = `<button class="btn-restituir-action" onclick="executarRestituição('${item.id}')">🔄 Confirmar Restituição</button>`;
+            } else if (isRestituido && isRestituirPendentes) {
+                btnRestituir = `<span style="color:#33FF99; font-weight:bold; font-size:12px; display:block; margin-top:8px; text-shadow:0 0 3px #00aa66;">✅ Restituído</span>`;
+            } else if (isRestituido && !isRestituirPendentes) {
+                btnRestituir = `<span style="color:#33FF99; font-weight:bold; font-size:12px; display:block; margin-top:8px; text-shadow:0 0 3px #00aa66;">✅ Restituído</span>`;
             }
             
-            toggleLoading(true);
-            const idEdicao = document.getElementById('f-id-edicao').value;
-            const acaoDestino = idEdicao ? 'editData' : 'saveData';
-            const payload = {
-                id: idEdicao || "", lacre: document.getElementById('f-lacre').value, dataentrada: document.getElementById('f-dataentrada').value,
-                recebedor: document.getElementById('f-recebedor').value, procedimento: document.getElementById('f-procedimento').value,
-                grupo: document.getElementById('f-grupo').value, classe: document.getElementById('f-classe').value, placa: document.getElementById('f-placa').value,
-                marca: document.getElementById('f-marca').value, modelo: document.getElementById('f-modelo').value, cor: document.getElementById('f-cor').value,
-                chassi: document.getElementById('f-chassi').value, motor: document.getElementById('f-motor').value, imagem: base64Image,
-                nota: document.getElementById('f-nota').value, datasaida: document.getElementById('f-datasaida').value,
-                servidor: document.getElementById('f-servidor').value, documento: document.getElementById('f-documento').value
-            };
-            const callbackName = 'jsonp_save_' + Date.now();
-            window[callbackName] = function(response) {
-                if (response && response.status === 'success') {
-                    alert(response.message || 'Dados gravados com sucesso!');
-                    limparFormulario();
-                    fetchData();
-                    switchPage('dashboard');
-                } else { alert('Erro ao processar alteração na planilha.'); }
-                toggleLoading(false);
-                delete window[callbackName]; const el = document.getElementById(callbackName); if(el) el.remove();
-            };
-            const script = document.createElement('script');
-            script.id = callbackName;
-            script.src = `${API_URL}?action=${acaoDestino}&data=${encodeURIComponent(JSON.stringify(payload))}&callback=${callbackName}`;
-            document.body.appendChild(script);
-        }
+            let btnEditar = "";
+            if (!isRestituidos) {
+                btnEditar = `<button class="btn-editar-action" onclick="iniciarEdicao('${item.id}', false)">✏️ Editar</button>`;
+            }
+            
+            const botoesAcao = `<div class="item-actions">${btnRestituir}${btnEditar}</div>`;
+            
+            let extraInfo = "";
+            if (isRestituido) {
+                if (item.datasaida) extraInfo += `<p><strong>Data Saída:</strong> ${item.datasaida}</p>`;
+                if (item.servidor) extraInfo += `<p><strong>Servidor:</strong> ${item.servidor}</p>`;
+                if (item.documento) extraInfo += `<p><strong>Documento:</strong> ${item.documento}</p>`;
+            }
+            
+            card.innerHTML = `${imgHtml}<p><strong>Lacre:</strong> ${item.lacre || 'Sem lacre'}</p><p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p><p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${item.dataentrada || ''}</p><p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p><p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>${extraInfo}${botoesAcao}`;
+            container.appendChild(card);
+        });
+    }
 
-        function limparFormulario() {
-            document.getElementById('form-cadastro').reset();
-            document.getElementById('f-id-edicao').value = "";
-            base64Image = "";
-            const btnSalvar = document.getElementById('btn-salvar-principal');
-            btnSalvar.innerText = "💾 SALVAR CADASTRO";
-            btnSalvar.classList.remove('edit-mode');
-            btnSalvar.style.display = 'flex';
-            toggleRestituirFields(false);
-            enableFormFields(true);
-            isViewOnlyMode = false;
+    function toggleRestituirFields(show) {
+        const divDataSaida = document.getElementById('div-datasaida');
+        const divServidor = document.getElementById('div-servidor');
+        const divDocumento = document.getElementById('div-documento');
+        
+        if (show) {
+            divDataSaida.classList.remove('hidden-field');
+            divServidor.classList.remove('hidden-field');
+            divDocumento.classList.remove('hidden-field');
+        } else {
+            divDataSaida.classList.add('hidden-field');
+            divServidor.classList.add('hidden-field');
+            divDocumento.classList.add('hidden-field');
         }
-    </script>
+    }
+    
+    function enableFormFields(enable) {
+        const editableFields = ['f-dataentrada', 'f-recebedor', 'f-procedimento', 'f-grupo', 'f-classe', 
+                                'f-placa', 'f-marca', 'f-modelo', 'f-cor', 'f-chassi', 'f-motor', 
+                                'f-nota', 'f-datasaida', 'f-servidor', 'f-documento'];
+        
+        editableFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.disabled = !enable;
+            }
+        });
+    }
+
+    function iniciarEdicao(id, isViewOnly = false) {
+        const item = localData.find(v => v.id.toString() === id.toString());
+        if (!item) return;
+        
+        const isFromRestituirTab = (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL');
+        const isFromRestituidosTab = (currentFilter.statusRestituir === 'RESTITUIDO');
+        
+        isEditingFromRestituir = isFromRestituirTab;
+        isEditingFromRestituidos = isFromRestituidosTab;
+        isViewOnlyMode = isFromRestituidosTab;
+        
+        const shouldShowExtraFields = isFromRestituirTab || isFromRestituidosTab;
+        toggleRestituirFields(shouldShowExtraFields);
+        
+        if (isViewOnlyMode) {
+            enableFormFields(false);
+            const btnSalvar = document.getElementById('btn-salvar-principal');
+            btnSalvar.style.display = 'none';
+        } else {
+            enableFormFields(true);
+            const btnSalvar = document.getElementById('btn-salvar-principal');
+            btnSalvar.style.display = 'flex';
+        }
+        
+        document.getElementById('f-id-edicao').value = item.id;
+        document.getElementById('f-lacre').value = item.lacre || "";
+        document.getElementById('f-dataentrada').value = item.dataentrada || "";
+        document.getElementById('f-recebedor').value = item.recebedor || "";
+        document.getElementById('f-procedimento').value = item.procedimento || "";
+        if(item.grupo) document.getElementById('f-grupo').value = item.grupo.toUpperCase().trim();
+        if(item.classe) document.getElementById('f-classe').value = item.classe.toUpperCase().trim();
+        document.getElementById('f-placa').value = item.placa || "";
+        document.getElementById('f-marca').value = item.marca || "";
+        document.getElementById('f-modelo').value = item.modelo || "";
+        document.getElementById('f-cor').value = item.cor || "";
+        document.getElementById('f-chassi').value = item.chassi || "";
+        document.getElementById('f-motor').value = item.motor || "";
+        if (item.imagem && item.imagem.toString().startsWith("data:image")) {
+            base64Image = item.imagem;
+        } else { base64Image = ""; }
+        document.getElementById('f-nota').value = item.nota || "";
+        document.getElementById('f-datasaida').value = item.datasaida || "";
+        document.getElementById('f-servidor').value = item.servidor || "";
+        document.getElementById('f-documento').value = item.documento || "";
+        
+        const btnSalvar = document.getElementById('btn-salvar-principal');
+        if (!isViewOnlyMode) {
+            btnSalvar.innerText = "💾 SALVAR EDIÇÃO";
+            btnSalvar.classList.add('edit-mode');
+        }
+        switchPage('cadastrar');
+    }
+
+    function filterListBySearch() {
+        const query = document.getElementById('search-input').value.toLowerCase().trim();
+        let filtered = filterData(localData);
+        if (query !== "") {
+            filtered = filtered.filter(item => {
+                const textoPesquisa = [
+                    item.placa, item.modelo, item.marca, item.lacre,
+                    item.procedimento, item.cor, item.chassi, item.motor,
+                    item.nota, item.recebedor, item.documento, item.servidor
+                ].join(" ").toLowerCase();
+                return textoPesquisa.includes(query);
+            });
+        }
+        renderList(filtered);
+    }
+
+    function acessarRestituicao(){
+        toggleLoading(true);
+        const cb = 'rest_' + Date.now();
+        window[cb] = function(r){
+            toggleLoading(false);
+            if(r.status !== 'success'){
+                alert("Erro ao buscar senha");
+                return;
+            }
+            const senhaDigitada = prompt("Digite a senha:");
+            if(senhaDigitada === null) return;
+            if(senhaDigitada.trim() !== String(r.senha).trim()){
+                alert("Senha incorreta");
+                return;
+            }
+            const opcao = prompt(`1 = RESTITUIR\n2 = ALTERAR SENHA USUÁRIO\n3 = SAIR`);
+            if(opcao === "1"){
+                openList('ALL', 'ALL', 'PENDENTE');
+                return;
+            }
+            if(opcao === "2"){
+                alterarSenhaUsuario();
+                return;
+            }
+            if(opcao === "3"){
+                logoutSistema();
+                return;
+            }
+        };
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=getSenhaRestituicao&callback=${cb}`;
+        document.body.appendChild(script);
+    }
+
+    function executarRestituição(id) {
+        if (!confirm(`Deseja confirmar a restituição deste veículo?`)) return;
+        toggleLoading(true);
+        const usuarioLogado = localStorage.getItem('usuarioLogado');
+        const callbackName = 'jsonp_rest_' + Date.now();
+        window[callbackName] = function(response) {
+            if (response && response.status === 'success') {
+                alert('Veículo restituído com sucesso na planilha!');
+                fetchData();
+                switchPage('dashboard');
+            } else { 
+                alert('Erro ao processar restituição.'); 
+                toggleLoading(false); 
+            }
+            delete window[callbackName];
+            const el = document.getElementById(callbackName); 
+            if(el) el.remove();
+        };
+        const script = document.createElement('script');
+        script.id = callbackName;
+        script.src = `${API_URL}?action=restituir&id=${id}&usuario=${encodeURIComponent(usuarioLogado)}&callback=${callbackName}`;
+        document.body.appendChild(script);
+    }
+
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        
+        const idEdicao = document.getElementById('f-id-edicao').value;
+        const usuarioLogado = localStorage.getItem('usuarioLogado');
+        
+        if (!usuarioLogado) {
+            alert('Usuário não está logado!');
+            return;
+        }
+        
+        const formData = {
+            usuarioLogado: usuarioLogado,
+            lacre: document.getElementById('f-lacre').value,
+            dataentrada: document.getElementById('f-dataentrada').value,
+            recebedor: document.getElementById('f-recebedor').value,
+            procedimento: document.getElementById('f-procedimento').value,
+            grupo: document.getElementById('f-grupo').value,
+            classe: document.getElementById('f-classe').value,
+            placa: document.getElementById('f-placa').value,
+            marca: document.getElementById('f-marca').value,
+            modelo: document.getElementById('f-modelo').value,
+            cor: document.getElementById('f-cor').value,
+            chassi: document.getElementById('f-chassi').value,
+            motor: document.getElementById('f-motor').value,
+            imagem: base64Image,
+            nota: document.getElementById('f-nota').value,
+            datasaida: document.getElementById('f-datasaida').value,
+            servidor: document.getElementById('f-servidor').value,
+            documento: document.getElementById('f-documento').value
+        };
+        
+        if (idEdicao) {
+            formData.id = idEdicao;
+            enviarDados(formData, 'editData');
+        } else {
+            enviarDados(formData, 'saveData');
+        }
+    }
+
+    function enviarDados(payload, actionType) {
+        toggleLoading(true);
+        const callbackName = 'jsonp_' + actionType + '_' + Date.now();
+        
+        window[callbackName] = function(response) {
+            toggleLoading(false);
+            if (response.status === 'success') {
+                alert(actionType === 'editData' ? 'Editado com sucesso!' : 'Salvo com sucesso!');
+                limparFormulario();
+                fetchData();
+                switchPage('dashboard');
+            } else {
+                alert(response.message || 'Erro ao salvar');
+            }
+            delete window[callbackName];
+            const el = document.getElementById(callbackName);
+            if (el) el.remove();
+        };
+        
+        const script = document.createElement('script');
+        script.id = callbackName;
+        const dataEncoded = encodeURIComponent(JSON.stringify(payload));
+        script.src = `${API_URL}?action=${actionType}&data=${dataEncoded}&callback=${callbackName}&_nocache=${Date.now()}`;
+        document.body.appendChild(script);
+    }
+
+    function limparFormulario() {
+        document.getElementById('form-cadastro').reset();
+        document.getElementById('f-id-edicao').value = "";
+        base64Image = "";
+        const btnSalvar = document.getElementById('btn-salvar-principal');
+        btnSalvar.innerText = "💾 SALVAR CADASTRO";
+        btnSalvar.classList.remove('edit-mode');
+        btnSalvar.style.display = 'flex';
+        toggleRestituirFields(false);
+        enableFormFields(true);
+        isViewOnlyMode = false;
+    }
+
+    function triggerInput(type) { }
+    function previewMedia(input) { }
+
+    function carregarAtividades() {
+        toggleLoading(true);
+        const callbackName = 'atividades_' + Date.now();
+        
+        window[callbackName] = function(response) {
+            toggleLoading(false);
+            if(response && response.status === 'success') {
+                exibirAtividades(response.data || []);
+            } else {
+                alert('Erro ao carregar atividades');
+                document.getElementById('atividade-container').innerHTML = 
+                    '<p style="text-align:center; padding:20px; color:#FFD966;">Erro ao carregar atividades</p>';
+            }
+            delete window[callbackName];
+            const el = document.getElementById(callbackName);
+            if(el) el.remove();
+        };
+        
+        const script = document.createElement('script');
+        script.id = callbackName;
+        script.src = `${API_URL}?action=getAtividades&callback=${callbackName}&_nocache=${Date.now()}`;
+        document.body.appendChild(script);
+    }
+
+    function exibirAtividades(atividades) {
+        const container = document.getElementById('atividade-container');
+        
+        if(!atividades || atividades.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:20px; color:#FFD966;">Nenhuma atividade registrada</p>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        
+        atividades.forEach(atv => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            
+            let corAcao = '#FFD966';
+            if(atv.acao === 'NOVO CADASTRO') corAcao = '#39FF14';
+            if(atv.acao === 'EDIÇÃO') corAcao = '#FFB347';
+            if(atv.acao === 'RESTITUIÇÃO') corAcao = '#FF4444';
+            if(atv.acao === 'ALTERAÇÃO DE SENHA') corAcao = '#44AAFF';
+            
+            card.style.borderLeftColor = corAcao;
+            card.innerHTML = `
+                <p><strong>📅 Data/Hora:</strong> ${atv.data_hora}</p>
+                <p><strong>👤 Usuário:</strong> ${atv.usuario}</p>
+                <p><strong>⚡ Ação:</strong> <span style="color:${corAcao};">${atv.acao}</span></p>
+                <p><strong>🆔 ID:</strong> ${atv.id || '-'}</p>
+                <p><strong>🔒 Lacre:</strong> ${atv.lacre || '-'}</p>
+                <p><strong>📝 Procedimento:</strong> ${atv.procedimento || '-'}</p>
+                <p><strong>🚗 Placa:</strong> ${atv.placa || '-'}</p>
+                <p><strong>💬 Observação:</strong> ${atv.obs || '-'}</p>
+            `;
+            container.appendChild(card);
+        });
+    }
+</script>
 </body>
 </html>
