@@ -345,14 +345,15 @@
             <h3>🏍️ MOTOCICLETAS SEM PLACA</h3>
             <div class="value" id="card-moto-sem">0</div>
         </div>
-        <div class="card" onclick="openList('MOTONETA', 'COM', 'PENDENTE')">
-            <h3>🛵 MOTONETAS COM PLACA</h3>
-            <div class="value" id="card-motoneta-com">0</div>
-        </div>
-        <div class="card" onclick="openList('MOTONETA', 'SEM', 'PENDENTE')">
-            <h3>🛵 MOTONETAS SEM PLACA</h3>
-            <div class="value" id="card-motoneta-sem">0</div>
-        </div>
+        <div class="card" style="display:none;" onclick="openList('MOTONETA', 'COM', 'PENDENTE')">
+    <h3>🛵 MOTONETAS COM PLACA</h3>
+    <div class="value" id="card-motoneta-com">0</div>
+</div>
+
+<div class="card" style="display:none;" onclick="openList('MOTONETA', 'SEM', 'PENDENTE')">
+    <h3>🛵 MOTONETAS SEM PLACA</h3>
+    <div class="value" id="card-motoneta-sem">0</div>
+</div>
         <div class="card" onclick="openList('CARRO', 'COM', 'PENDENTE')">
             <h3>🚗 CARROS COM PLACA</h3>
             <div class="value" id="card-carro-com">0</div>
@@ -394,10 +395,9 @@
         <div class="form-group">
             <label>Grupo</label>
             <select id="f-grupo" class="form-control" required>
-                <option value="MOTOCICLETA">MOTOCICLETA</option>
-                <option value="MOTONETA">MOTONETA</option>
-                <option value="CARRO">CARRO</option>
-            </select>
+    <option value="MOTOCICLETA">MOTOCICLETA</option>
+    <option value="CARRO">CARRO</option>
+</select>
         </div>
         
         <div class="form-group">
@@ -889,7 +889,16 @@ item.dataentrada
 );
         document.getElementById('f-recebedor').value = item.recebedor || "";
         document.getElementById('f-procedimento').value = item.procedimento || "";
-        if(item.grupo) document.getElementById('f-grupo').value = item.grupo.toUpperCase().trim();
+        if(item.grupo){
+
+    const grupo = item.grupo.toUpperCase().trim();
+
+    if(grupo === "MOTONETA"){
+        document.getElementById('f-grupo').value = "MOTOCICLETA";
+    }else{
+        document.getElementById('f-grupo').value = grupo;
+    }
+}
         if(item.classe) document.getElementById('f-classe').value = item.classe.toUpperCase().trim();
         document.getElementById('f-placa').value = item.placa || "";
         document.getElementById('f-marca').value = item.marca || "";
