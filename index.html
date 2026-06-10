@@ -378,9 +378,18 @@
             <h3>📄 COM BO</h3>
             <div class="value" id="card-com-bo">0</div>
         </div>
-    </div>
+    <div class="card" onclick="openList('TRAMITANDO', 'ALL', 'TRAMITACAO')">
+    <h3>🔄 TRAMITANDO</h3>
+    <div class="value" id="card-tramitando">0</div>
 </div>
 
+<div class="card" onclick="openList('FINALIZADO', 'ALL', 'TRAMITACAO')">
+    <h3>✅ FINALIZADOS</h3>
+    <div class="value" id="card-finalizado">0</div>
+</div>
+</div>
+    </div>
+    
 <div id="page-cadastrar" class="page">
     <input type="hidden" id="f-id-edicao" value="">
     <form id="form-cadastro" onsubmit="handleFormSubmit(event)">
@@ -427,7 +436,13 @@
         </div>
 
         <div class="form-group"><label>Nota</label><input type="text" id="f-nota" class="form-control"></div>
-        
+        <div class="form-group">
+    <label>Tramitação</label>
+    <select id="f-tramitacao" class="form-control">
+        <option value="TRAMITANDO">TRAMITANDO</option>
+        <option value="FINALIZADO">FINALIZADO</option>
+    </select>
+</div>
         <div id="div-datasaida" class="form-group hidden-field">
             <label>Data Saída</label>
             <input type="date" id="f-datasaida" class="form-control">
@@ -575,7 +590,8 @@
     function limparEIrParaCadastro() {
         limparFormulario();
         document.getElementById('f-dataentrada').value = new Date().toISOString().split('T')[0];
-        isEditingFromRestituir = false;
+       document.getElementById('f-tramitacao').value = 'TRAMITANDO';
+ isEditingFromRestituir = false;
         isEditingFromRestituidos = false;
         isViewOnlyMode = false;
         toggleRestituirFields(false);
@@ -719,10 +735,19 @@ return `${ano}-${mes}-${dia}`;
 
     function updateDashboardCounters() {
         document.getElementById('lbl-total').innerText = localData.length;
-        const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0, sem_bo: 0, com_bo: 0 };
+        const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0, sem_bo: 0, com_bo: 0, tramitando: 0,
+finalizado: 0, };
 
         localData.forEach(item => {
-            const g = item.grupo || "";
+          const t =
+(item.tramitacao || "")
+.toString()
+.trim()
+.toUpperCase();
+
+if(t === "TRAMITANDO") counts.tramitando++;
+if(t === "FINALIZADO") counts.finalizado++;
+  const g = item.grupo || "";
             const c = item.classe || "";
             const p = (item.procedimento || "").toString().toUpperCase().trim();
             const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
@@ -750,7 +775,12 @@ return `${ano}-${mes}-${dia}`;
         document.getElementById('card-restituidos-total').innerText = counts.restituidos;
         document.getElementById('card-sem-bo').innerText = counts.sem_bo;
         document.getElementById('card-com-bo').innerText = counts.com_bo;
-    }
+   document.getElementById('card-tramitando').innerText =
+counts.tramitando;
+
+document.getElementById('card-finalizado').innerText =
+counts.finalizado;
+ }
 
     function openList(grupo, classe, statusRestituir) {
         currentFilter = { grupo, classe, statusRestituir };
@@ -759,7 +789,12 @@ return `${ano}-${mes}-${dia}`;
         if (statusRestituir === 'RESTITUIDO') titulo = "Veículos Já Restituídos";
         if (grupo === 'PROC_SEM_BO') titulo = "Cadastros SEM BO";
         if (grupo === 'PROC_COM_BO') titulo = "Cadastros COM BO";
-        document.getElementById('list-title').innerText = titulo;
+        if(grupo === 'TRAMITANDO')
+    titulo = 'Processos Tramitando';
+
+if(grupo === 'FINALIZADO')
+    titulo = 'Processos Finalizados';
+document.getElementById('list-title').innerText = titulo;
         document.getElementById('search-input').value = ""; 
         renderList(filterData(localData));
         switchPage('list');
@@ -775,7 +810,17 @@ return `${ano}-${mes}-${dia}`;
             if (currentFilter.grupo === 'PROC_SEM_BO') return p.includes("SEM BO") && !r;
             if (currentFilter.grupo === 'PROC_COM_BO') return !p.includes("SEM BO") && !r;
             if (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL') return !r;
-            return checkGrupo(g, currentFilter.grupo) && checkClasse(c, currentFilter.classe) && !r;
+          if(currentFilter.statusRestituir === 'TRAMITACAO'){
+
+    const t =
+    (item.tramitacao || "")
+    .toString()
+    .trim()
+    .toUpperCase();
+
+    return t === currentFilter.grupo;
+}
+  return checkGrupo(g, currentFilter.grupo) && checkClasse(c, currentFilter.classe) && !r;
         });
     }
 
@@ -822,7 +867,17 @@ return `${ano}-${mes}-${dia}`;
                 if (item.documento) extraInfo += `<p><strong>Documento:</strong> ${item.documento}</p>`;
             }
             
-            card.innerHTML = `${imgHtml}<p><strong>Lacre:</strong> ${item.lacre || 'Sem lacre'}</p><p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p> <p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${formatarDataVisual(item.dataentrada)}</p><p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p><p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>${extraInfo}${botoesAcao}`;
+            card.innerHTML = `
+    ${imgHtml}
+    <p><strong>Lacre:</strong> ${item.lacre || 'Sem lacre'}</p>
+    <p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p>
+    <p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${formatarDataVisual(item.dataentrada)}</p>
+    <p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p>
+    <p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>
+    <p><strong>Tramitação:</strong> ${item.tramitacao || 'TRAMITANDO'}</p>
+    ${extraInfo}
+    ${botoesAcao}
+`;
             container.appendChild(card);
         });
     }
@@ -846,7 +901,7 @@ return `${ano}-${mes}-${dia}`;
     function enableFormFields(enable) {
         const editableFields = ['f-dataentrada', 'f-recebedor', 'f-procedimento', 'f-grupo', 'f-classe', 
                                 'f-placa', 'f-marca', 'f-modelo', 'f-cor', 'f-chassi', 'f-motor', 
-                                'f-nota', 'f-datasaida', 'f-servidor', 'f-documento'];
+                                'f-nota', 'f-tramitacao', 'f-datasaida', 'f-servidor', 'f-documento'];
         
         editableFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
@@ -910,7 +965,9 @@ item.dataentrada
             base64Image = item.imagem;
         } else { base64Image = ""; }
         document.getElementById('f-nota').value = item.nota || "";
-        document.getElementById('f-datasaida').value = item.datasaida || "";
+        document.getElementById('f-tramitacao').value =
+(item.tramitacao || "TRAMITANDO").toUpperCase();
+document.getElementById('f-datasaida').value = item.datasaida || "";
         document.getElementById('f-servidor').value = item.servidor || "";
         document.getElementById('f-documento').value = item.documento || "";
         
@@ -1023,7 +1080,8 @@ item.dataentrada
             motor: document.getElementById('f-motor').value,
             imagem: base64Image,
             nota: document.getElementById('f-nota').value,
-            datasaida: document.getElementById('f-datasaida').value,
+            tramitacao: document.getElementById('f-tramitacao').value,
+datasaida: document.getElementById('f-datasaida').value,
             servidor: document.getElementById('f-servidor').value,
             documento: document.getElementById('f-documento').value
         };
