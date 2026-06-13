@@ -497,10 +497,37 @@
     let isViewOnlyMode = false;
     let base64Image = "";
 
+    // Função auxiliar para garantir que o usuário seja string
+    function getUsuarioLogado() {
+        let usuario = localStorage.getItem('usuarioLogado');
+        if (!usuario) return "";
+        
+        // Se for string JSON, tenta parsear
+        if (typeof usuario === 'string' && usuario.indexOf('{') !== -1) {
+            try {
+                var obj = JSON.parse(usuario);
+                usuario = obj.usuario || obj.usuário || obj.user || "";
+                localStorage.setItem('usuarioLogado', usuario);
+            } catch(e) {}
+        }
+        
+        // Se for objeto (caso raro)
+        if (typeof usuario === 'object') {
+            usuario = usuario.usuario || usuario.usuário || "";
+            localStorage.setItem('usuarioLogado', usuario);
+        }
+        
+        return usuario;
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('search-input').addEventListener('input', filterListBySearch);
+        
+        // Corrigir localStorage se necessário
+        getUsuarioLogado();
+        
         const usuarioLogado = localStorage.getItem('usuarioLogado');
-        if(usuarioLogado){
+        if(usuarioLogado && usuarioLogado !== "null" && usuarioLogado !== "undefined"){
             document.getElementById('login-screen').style.display = 'none';
             fetchData();
         }
@@ -518,8 +545,13 @@
         window[cb] = function(r){
             toggleLoading(false);
             if(r.status === 'success'){
-                localStorage.setItem('usuarioLogado', r.usuario);
-                localStorage.setItem('nomeUsuario', r.nome);
+                // GARANTIR QUE SALVAMOS APENAS A STRING DO USUÁRIO
+                var usuarioString = r.usuario;
+                if (typeof usuarioString === 'object') {
+                    usuarioString = usuarioString.usuario || usuarioString.usuário || "";
+                }
+                localStorage.setItem('usuarioLogado', usuarioString);
+                localStorage.setItem('nomeUsuario', r.nome || usuarioString);
                 document.getElementById('login-screen').style.display = 'none';
                 fetchData();
             }else{
@@ -552,7 +584,7 @@
             return;
         }
         toggleLoading(true);
-        const usuario = localStorage.getItem('usuarioLogado');
+        let usuario = getUsuarioLogado();
         const cb = 'alter_' + Date.now();
         window[cb] = function(resp){
             toggleLoading(false);
@@ -623,35 +655,20 @@
     function toggleLoading(show) {
         document.getElementById('loading').style.display = show ? 'flex' : 'none';
     }
-function formatarDataHoraBR(dataString){
-
-if(!dataString) return "";
-
-const data = new Date(dataString);
-
-if(isNaN(data)) return dataString;
-
-const dia =
-String(data.getDate()).padStart(2,'0');
-
-const mes =
-String(data.getMonth()+1).padStart(2,'0');
-
-const ano =
-data.getFullYear();
-
-const hora =
-String(data.getHours()).padStart(2,'0');
-
-const minuto =
-String(data.getMinutes()).padStart(2,'0');
-
-const segundo =
-String(data.getSeconds()).padStart(2,'0');
-
-return `${dia}/${mes}/${ano} ${hora}:${minuto}:${segundo}`;
-
-}
+    
+    function formatarDataHoraBR(dataString){
+        if(!dataString) return "";
+        const data = new Date(dataString);
+        if(isNaN(data)) return dataString;
+        const dia = String(data.getDate()).padStart(2,'0');
+        const mes = String(data.getMonth()+1).padStart(2,'0');
+        const ano = data.getFullYear();
+        const hora = String(data.getHours()).padStart(2,'0');
+        const minuto = String(data.getMinutes()).padStart(2,'0');
+        const segundo = String(data.getSeconds()).padStart(2,'0');
+        return `${dia}/${mes}/${ano} ${hora}:${minuto}:${segundo}`;
+    }
+    
     function fetchData() {
         toggleLoading(true);
         const callbackName = 'jsonpCallback_' + Date.now();
@@ -675,54 +692,38 @@ return `${dia}/${mes}/${ano} ${hora}:${minuto}:${segundo}`;
         script.onerror = () => { toggleLoading(false); alert("Falha de comunicação externa."); };
         document.body.appendChild(script);
     }
-function formatarDataVisual(data){
+    
+    function formatarDataVisual(data){
+        if(!data) return "";
+        const d = new Date(data);
+        if(isNaN(d)) return data;
+        const dia = String(d.getDate()).padStart(2,'0');
+        const mes = String(d.getMonth()+1).padStart(2,'0');
+        const ano = d.getFullYear();
+        return `${dia}/${mes}/${ano}`;
+    }
 
-if(!data) return "";
-
-const d = new Date(data);
-
-if(isNaN(d)) return data;
-
-const dia = String(
-d.getDate()
-).padStart(2,'0');
-
-const mes = String(
-d.getMonth()+1
-).padStart(2,'0');
-
-const ano = d.getFullYear();
-
-return `${dia}/${mes}/${ano}`;
-
-}
-
-function formatarDataInput(data){
-
-if(!data) return "";
-
-const d = new Date(data);
-
-if(isNaN(d)) return "";
-
-const ano = d.getFullYear();
-
-const mes = String(
-d.getMonth()+1
-).padStart(2,'0');
-
-const dia = String(
-d.getDate()
-).padStart(2,'0');
-
-return `${ano}-${mes}-${dia}`;
-
-}
+    function formatarDataInput(data){
+        if(!data) return "";
+        const d = new Date(data);
+        if(isNaN(d)) return "";
+        const ano = d.getFullYear();
+        const mes = String(d.getMonth()+1).padStart(2,'0');
+        const dia = String(d.getDate()).padStart(2,'0');
+        return `${ano}-${mes}-${dia}`;
+    }
+    
     function checkGrupo(text, target) {
         const t = (text || "").toString().toLowerCase().trim();
-        if (target === 'MOTO') return t.includes('moto') && !t.includes('motoneta');
-        if (target === 'MOTONETA') return t.includes('motoneta');
-        if (target === 'CARRO') return t.includes('carro') || t.includes('via') || t.includes('auto');
+        if (target === 'MOTO') {
+            return (t.includes('moto') || t.includes('motocicleta')) && !t.includes('motoneta');
+        }
+        if (target === 'MOTONETA') {
+            return t.includes('motoneta');
+        }
+        if (target === 'CARRO') {
+            return t.includes('carro') || t.includes('via') || t.includes('auto');
+        }
         return false;
     }
 
@@ -735,19 +736,13 @@ return `${ano}-${mes}-${dia}`;
 
     function updateDashboardCounters() {
         document.getElementById('lbl-total').innerText = localData.length;
-        const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0, sem_bo: 0, com_bo: 0, tramitando: 0,
-finalizado: 0, };
+        const counts = { moto_com: 0, moto_sem: 0, motoneta_com: 0, motoneta_sem: 0, carro_com: 0, carro_sem: 0, pendentes: 0, restituidos: 0, sem_bo: 0, com_bo: 0, tramitando: 0, finalizado: 0 };
 
         localData.forEach(item => {
-          const t =
-(item.tramitacao || "")
-.toString()
-.trim()
-.toUpperCase();
-
-if(t === "TRAMITANDO") counts.tramitando++;
-if(t === "FINALIZADO") counts.finalizado++;
-  const g = item.grupo || "";
+            const t = (item.tramitacao || "").toString().trim().toUpperCase();
+            if(t === "TRAMITANDO") counts.tramitando++;
+            if(t === "FINALIZADO") counts.finalizado++;
+            const g = item.grupo || "";
             const c = item.classe || "";
             const p = (item.procedimento || "").toString().toUpperCase().trim();
             const r = (item.restituir || "").toString().trim().toUpperCase() === "SIM";
@@ -775,12 +770,9 @@ if(t === "FINALIZADO") counts.finalizado++;
         document.getElementById('card-restituidos-total').innerText = counts.restituidos;
         document.getElementById('card-sem-bo').innerText = counts.sem_bo;
         document.getElementById('card-com-bo').innerText = counts.com_bo;
-   document.getElementById('card-tramitando').innerText =
-counts.tramitando;
-
-document.getElementById('card-finalizado').innerText =
-counts.finalizado;
- }
+        document.getElementById('card-tramitando').innerText = counts.tramitando;
+        document.getElementById('card-finalizado').innerText = counts.finalizado;
+    }
 
     function openList(grupo, classe, statusRestituir) {
         currentFilter = { grupo, classe, statusRestituir };
@@ -789,12 +781,9 @@ counts.finalizado;
         if (statusRestituir === 'RESTITUIDO') titulo = "Veículos Já Restituídos";
         if (grupo === 'PROC_SEM_BO') titulo = "Cadastros SEM BO";
         if (grupo === 'PROC_COM_BO') titulo = "Cadastros COM BO";
-        if(grupo === 'TRAMITANDO')
-    titulo = 'Processos Tramitando';
-
-if(grupo === 'FINALIZADO')
-    titulo = 'Processos Finalizados';
-document.getElementById('list-title').innerText = titulo;
+        if(grupo === 'TRAMITANDO') titulo = 'Processos Tramitando';
+        if(grupo === 'FINALIZADO') titulo = 'Processos Finalizados';
+        document.getElementById('list-title').innerText = titulo;
         document.getElementById('search-input').value = ""; 
         renderList(filterData(localData));
         switchPage('list');
@@ -810,17 +799,11 @@ document.getElementById('list-title').innerText = titulo;
             if (currentFilter.grupo === 'PROC_SEM_BO') return p.includes("SEM BO") && !r;
             if (currentFilter.grupo === 'PROC_COM_BO') return !p.includes("SEM BO") && !r;
             if (currentFilter.statusRestituir === 'PENDENTE' && currentFilter.grupo === 'ALL') return !r;
-          if(currentFilter.statusRestituir === 'TRAMITACAO'){
-
-    const t =
-    (item.tramitacao || "")
-    .toString()
-    .trim()
-    .toUpperCase();
-
-    return t === currentFilter.grupo;
-}
-  return checkGrupo(g, currentFilter.grupo) && checkClasse(c, currentFilter.classe) && !r;
+            if(currentFilter.statusRestituir === 'TRAMITACAO'){
+                const t = (item.tramitacao || "").toString().trim().toUpperCase();
+                return t === currentFilter.grupo;
+            }
+            return checkGrupo(g, currentFilter.grupo) && checkClasse(c, currentFilter.classe) && !r;
         });
     }
 
@@ -846,7 +829,7 @@ document.getElementById('list-title').innerText = titulo;
             
             let btnRestituir = "";
             if (isRestituirPendentes && !isRestituido) {
-                btnRestituir = `<button class="btn-restituir-action" onclick="executarRestituição('${item.id}')">🔄 Confirmar Restituição</button>`;
+                btnRestituir = `<button class="btn-restituir-action" onclick="executarRestituicao('${item.id}')">🔄 Confirmar Restituição</button>`;
             } else if (isRestituido && isRestituirPendentes) {
                 btnRestituir = `<span style="color:#33FF99; font-weight:bold; font-size:12px; display:block; margin-top:8px; text-shadow:0 0 3px #00aa66;">✅ Restituído</span>`;
             } else if (isRestituido && !isRestituirPendentes) {
@@ -868,16 +851,16 @@ document.getElementById('list-title').innerText = titulo;
             }
             
             card.innerHTML = `
-    ${imgHtml}
-    <p><strong>Lacre:</strong> ${item.lacre || 'Sem lacre'}</p>
-    <p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p>
-    <p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${formatarDataVisual(item.dataentrada)}</p>
-    <p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p>
-    <p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>
-    <p><strong>Tramitação:</strong> ${item.tramitacao || 'TRAMITANDO'}</p>
-    ${extraInfo}
-    ${botoesAcao}
-`;
+                ${imgHtml}
+                <p><strong>Lacre:</strong> ${item.lacre || 'Sem lacre'}</p>
+                <p><strong>Veículo:</strong> ${item.marca || ''} ${item.modelo || ''} (${item.cor || ''})</p>
+                <p><strong>Placa:</strong> ${item.placa || 'SEM PLACA'} | <strong>Entrada:</strong> ${formatarDataVisual(item.dataentrada)}</p>
+                <p><strong>Procedimento:</strong> ${item.procedimento || 'Não Informado'}</p>
+                <p><strong>Nota/Obs:</strong> ${item.nota || ''}</p>
+                <p><strong>Tramitação:</strong> ${item.tramitacao || 'TRAMITANDO'}</p>
+                ${extraInfo}
+                ${botoesAcao}
+            `;
             container.appendChild(card);
         });
     }
@@ -937,23 +920,17 @@ document.getElementById('list-title').innerText = titulo;
         
         document.getElementById('f-id-edicao').value = item.id;
         document.getElementById('f-lacre').value = item.lacre || "";
-        document.getElementById(
-'f-dataentrada'
-).value = formatarDataInput(
-item.dataentrada
-);
+        document.getElementById('f-dataentrada').value = formatarDataInput(item.dataentrada);
         document.getElementById('f-recebedor').value = item.recebedor || "";
         document.getElementById('f-procedimento').value = item.procedimento || "";
         if(item.grupo){
-
-    const grupo = item.grupo.toUpperCase().trim();
-
-    if(grupo === "MOTONETA"){
-        document.getElementById('f-grupo').value = "MOTOCICLETA";
-    }else{
-        document.getElementById('f-grupo').value = grupo;
-    }
-}
+            const grupo = item.grupo.toUpperCase().trim();
+            if(grupo === "MOTONETA"){
+                document.getElementById('f-grupo').value = "MOTOCICLETA";
+            }else{
+                document.getElementById('f-grupo').value = grupo;
+            }
+        }
         if(item.classe) document.getElementById('f-classe').value = item.classe.toUpperCase().trim();
         document.getElementById('f-placa').value = item.placa || "";
         document.getElementById('f-marca').value = item.marca || "";
@@ -965,9 +942,8 @@ item.dataentrada
             base64Image = item.imagem;
         } else { base64Image = ""; }
         document.getElementById('f-nota').value = item.nota || "";
-        document.getElementById('f-tramitacao').value =
-(item.tramitacao || "TRAMITANDO").toUpperCase();
-document.getElementById('f-datasaida').value = item.datasaida || "";
+        document.getElementById('f-tramitacao').value = (item.tramitacao || "TRAMITANDO").toUpperCase();
+        document.getElementById('f-datasaida').value = item.datasaida || "";
         document.getElementById('f-servidor').value = item.servidor || "";
         document.getElementById('f-documento').value = item.documento || "";
         
@@ -1029,10 +1005,10 @@ document.getElementById('f-datasaida').value = item.datasaida || "";
         document.body.appendChild(script);
     }
 
-    function executarRestituição(id) {
+    function executarRestituicao(id) {
         if (!confirm(`Deseja confirmar a restituição deste veículo?`)) return;
         toggleLoading(true);
-        const usuarioLogado = localStorage.getItem('usuarioLogado');
+        let usuarioLogado = getUsuarioLogado();
         const callbackName = 'jsonp_rest_' + Date.now();
         window[callbackName] = function(response) {
             if (response && response.status === 'success') {
@@ -1057,13 +1033,8 @@ document.getElementById('f-datasaida').value = item.datasaida || "";
         event.preventDefault();
         
         const idEdicao = document.getElementById('f-id-edicao').value;
-        const usuarioLogado = localStorage.getItem('usuarioLogado');
-        
-        if (!usuarioLogado) {
-            alert('Usuário não está logado!');
-            return;
-        }
-        
+        let usuarioLogado = getUsuarioLogado();
+
         const formData = {
             usuarioLogado: usuarioLogado,
             lacre: document.getElementById('f-lacre').value,
@@ -1081,7 +1052,7 @@ document.getElementById('f-datasaida').value = item.datasaida || "";
             imagem: base64Image,
             nota: document.getElementById('f-nota').value,
             tramitacao: document.getElementById('f-tramitacao').value,
-datasaida: document.getElementById('f-datasaida').value,
+            datasaida: document.getElementById('f-datasaida').value,
             servidor: document.getElementById('f-servidor').value,
             documento: document.getElementById('f-documento').value
         };
@@ -1143,17 +1114,19 @@ datasaida: document.getElementById('f-datasaida').value,
         window[callbackName] = function(response) {
             toggleLoading(false);
             if(response && response.status === 'success') {
-                exibirAtividades(response.data || []);
+                const atividades = response.data || [];
+                atividades.sort((a, b) => {
+                    return new Date(b.data_hora) - new Date(a.data_hora);
+                });
+                exibirAtividades(atividades);
             } else {
                 alert('Erro ao carregar atividades');
-                document.getElementById('atividade-container').innerHTML = 
-                    '<p style="text-align:center; padding:20px; color:#FFD966;">Erro ao carregar atividades</p>';
+                document.getElementById('atividade-container').innerHTML = '<p style="text-align:center; padding:20px; color:#FFD966;">Erro ao carregar atividades</p>';
             }
             delete window[callbackName];
             const el = document.getElementById(callbackName);
             if(el) el.remove();
-        };
-        
+        };        
         const script = document.createElement('script');
         script.id = callbackName;
         script.src = `${API_URL}?action=getAtividades&callback=${callbackName}&_nocache=${Date.now()}`;
@@ -1181,15 +1154,41 @@ datasaida: document.getElementById('f-datasaida').value,
             if(atv.acao === 'ALTERAÇÃO DE SENHA') corAcao = '#44AAFF';
             
             card.style.borderLeftColor = corAcao;
+            
+            // Extrair nome do usuário corretamente
+            let nomeUsuario = atv.usuario || '-';
+            if (typeof nomeUsuario === 'object') {
+                nomeUsuario = nomeUsuario.usuario || nomeUsuario.usuário || '-';
+            }
+            if (typeof nomeUsuario === 'string' && nomeUsuario.indexOf('{') !== -1) {
+                try {
+                    var obj = JSON.parse(nomeUsuario);
+                    nomeUsuario = obj.usuario || obj.usuário || '-';
+                } catch(e) {}
+            }
+            
             card.innerHTML = `
                 <p><strong>📅 Data/Hora:</strong> ${formatarDataHoraBR(atv.data_hora)}</p>
-                <p><strong>👤 Usuário:</strong> ${atv.usuario}</p>
+                <p><strong>👤 Usuário:</strong> ${nomeUsuario}</p>
                 <p><strong>⚡ Ação:</strong> <span style="color:${corAcao};">${atv.acao}</span></p>
                 <p><strong>🆔 ID:</strong> ${atv.id || '-'}</p>
                 <p><strong>🔒 Lacre:</strong> ${atv.lacre || '-'}</p>
                 <p><strong>📝 Procedimento:</strong> ${atv.procedimento || '-'}</p>
                 <p><strong>🚗 Placa:</strong> ${atv.placa || '-'}</p>
                 <p><strong>💬 Observação:</strong> ${atv.obs || '-'}</p>
+            ${atv.antes ? `
+            <hr style="margin:10px 0;border-color:#444;">
+            <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:250px; background:#111; padding:10px; border-radius:10px; border:1px solid #FF6666;">
+                    <h4 style="color:#FF6666; margin-bottom:8px;">📌 ANTES</h4>
+                    <pre style="white-space:pre-wrap; color:white; font-size:12px; font-family:Arial;">${atv.antes}</pre>
+                </div>
+                <div style="flex:1; min-width:250px; background:#111; padding:10px; border-radius:10px; border:1px solid #39FF14;">
+                    <h4 style="color:#39FF14; margin-bottom:8px;">✅ DEPOIS</h4>
+                    <pre style="white-space:pre-wrap; color:white; font-size:12px; font-family:Arial;">${atv.depois}</pre>
+                </div>
+            </div>
+            ` : ''}
             `;
             container.appendChild(card);
         });
