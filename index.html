@@ -7,14 +7,12 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
         
-        /* NOVO FUNDO MARROM DOURADO */
         body { 
             background: linear-gradient(145deg, #8B5A2B 0%, #A0522D 100%); 
             padding: 10px; 
             min-height: 100vh;
         }
         
-        /* HEADER COM TRANSPARÊNCIA E SOMBRA */
         header { 
             background: rgba(0,0,0,0.75); 
             backdrop-filter: blur(4px);
@@ -36,7 +34,6 @@
             text-shadow: 0 0 5px #FFD700;
         }
         
-        /* BOTÕES DE NAVEGAÇÃO ESTILO NEON */
         .nav-buttons{
             display:flex;
             gap:4px;
@@ -63,7 +60,6 @@
         .nav-btn.active { background: #4a3b1a; border: 2px solid #FFE484; color: #FFF2B5; box-shadow: 0 0 12px #FFB347; }
         .counter-badge { background: #2c2412; }
         
-        /* Botão Cadastrar com destaque especial - VERDE NEON */
         .btn-cadastrar-destaque {
             background:#0a2e1a;
             color:#39FF14 !important;
@@ -86,11 +82,9 @@
             100% { box-shadow: 0 0 8px #39FF14, inset 0 0 2px #39FF14; }
         }
         
-        /* PÁGINAS */
         .page { display: none; }
         .page.active { display: block; }
         
-        /* CARDS NA COR PRETA COM BORDA NEON AMARELA E TEXTOS BRANCOS NEON + SOMBRA AZUL */
         .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 12px; }
         .card { 
             background: #000000; 
@@ -127,7 +121,6 @@
             padding: 4px 12px;
         }
         
-        /* ESTILOS FORMULÁRIO (mantendo estrutura, apenas ajustando cores) */
         .form-group { margin-bottom: 14px; }
         .form-group label { 
             display: block; 
@@ -155,7 +148,6 @@
             box-shadow: 0 0 6px #FFD966;
         }
         
-        /* Estilo para campos desabilitados (LACRE bloqueado) */
         .form-control:disabled {
             background: #2a2418;
             color: #CCAA77;
@@ -163,11 +155,9 @@
             border-color: #AA8844;
         }
         
-        /* ESTILOS DE MÍDIA OCULTOS */
         .media-actions { display: none; }
         #preview-img { width: 100%; max-height: 160px; object-fit: contain; margin-top: 10px; border-radius: 12px; display: none; border: 2px solid #FFD966; background: #111; padding: 4px; }
         
-        /* BOTÕES AÇÕES FINAIS */
         .form-actions-container { display: flex; gap: 12px; margin-top: 20px; }
         .btn-submit { 
             flex: 1; 
@@ -199,7 +189,6 @@
         .btn-cancel:hover { background: #7e3c22; box-shadow: 0 0 4px #ffaa66; }
         .btn-submit:hover { background: #1f694a; }
         
-        /* LISTA (cards pretos, textos em negrito branco com sombra azul) */
         .list-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; background: #000000cc; backdrop-filter: blur(8px); padding: 12px; border-radius: 32px; border: 1px solid #FFD966; }
         .search-box { flex: 1; display: flex; gap: 4px; }
         .search-box input { 
@@ -263,7 +252,6 @@
         }
         .btn-editar-action:hover { background: #3f8e3a; box-shadow: 0 0 6px #66ff66; }
         
-        /* LOADING ESTILO */
         #loading { 
             display:none; 
             position: fixed; 
@@ -282,7 +270,6 @@
             text-shadow: 0 0 10px #00aaff;
         }
         
-        /* título da lista com efeito neon */
         #list-title, #atividade-title {
             font-size: 16px;
             margin-bottom: 14px;
@@ -294,19 +281,54 @@
             letter-spacing: 1px;
         }
         
-        /* melhorias no placeholder e selects */
         select.form-control option { background: #1a160e; color: #FFEFC0; }
         input::placeholder { color: #ccaa77; font-weight: normal; }
         
-        /* Classe para campos ocultos dinamicamente */
         .hidden-field {
             display: none;
         }
         
-        /* Estilo para visualização de dados restituídos (fundo diferenciado) */
         .restituido-view .form-control {
             background: #2a2418;
             color: #FFE4B5;
+        }
+        
+        /* Estilos para ANTES/DEPOIS */
+        .comparison-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .before-box {
+            flex: 1;
+            min-width: 250px;
+            background: #111;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #FF6666;
+        }
+        .after-box {
+            flex: 1;
+            min-width: 250px;
+            background: #111;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #39FF14;
+        }
+        .before-title {
+            color: #FF6666;
+            margin-bottom: 8px;
+        }
+        .after-title {
+            color: #39FF14;
+            margin-bottom: 8px;
+        }
+        .pre-content {
+            white-space: pre-wrap;
+            color: white;
+            font-size: 12px;
+            font-family: Arial;
         }
     </style>
 </head>
@@ -346,14 +368,13 @@
             <div class="value" id="card-moto-sem">0</div>
         </div>
         <div class="card" style="display:none;" onclick="openList('MOTONETA', 'COM', 'PENDENTE')">
-    <h3>🛵 MOTONETAS COM PLACA</h3>
-    <div class="value" id="card-motoneta-com">0</div>
-</div>
-
-<div class="card" style="display:none;" onclick="openList('MOTONETA', 'SEM', 'PENDENTE')">
-    <h3>🛵 MOTONETAS SEM PLACA</h3>
-    <div class="value" id="card-motoneta-sem">0</div>
-</div>
+            <h3>🛵 MOTONETAS COM PLACA</h3>
+            <div class="value" id="card-motoneta-com">0</div>
+        </div>
+        <div class="card" style="display:none;" onclick="openList('MOTONETA', 'SEM', 'PENDENTE')">
+            <h3>🛵 MOTONETAS SEM PLACA</h3>
+            <div class="value" id="card-motoneta-sem">0</div>
+        </div>
         <div class="card" onclick="openList('CARRO', 'COM', 'PENDENTE')">
             <h3>🚗 CARROS COM PLACA</h3>
             <div class="value" id="card-carro-com">0</div>
@@ -378,17 +399,16 @@
             <h3>📄 COM BO</h3>
             <div class="value" id="card-com-bo">0</div>
         </div>
-    <div class="card" onclick="openList('TRAMITANDO', 'ALL', 'TRAMITACAO')">
-    <h3>🔄 TRAMITANDO</h3>
-    <div class="value" id="card-tramitando">0</div>
-</div>
-
-<div class="card" onclick="openList('FINALIZADO', 'ALL', 'TRAMITACAO')">
-    <h3>✅ FINALIZADOS</h3>
-    <div class="value" id="card-finalizado">0</div>
-</div>
-</div>
+        <div class="card" onclick="openList('TRAMITANDO', 'ALL', 'TRAMITACAO')">
+            <h3>🔄 TRAMITANDO</h3>
+            <div class="value" id="card-tramitando">0</div>
+        </div>
+        <div class="card" onclick="openList('FINALIZADO', 'ALL', 'TRAMITACAO')">
+            <h3>✅ FINALIZADOS</h3>
+            <div class="value" id="card-finalizado">0</div>
+        </div>
     </div>
+</div>
     
 <div id="page-cadastrar" class="page">
     <input type="hidden" id="f-id-edicao" value="">
@@ -404,9 +424,9 @@
         <div class="form-group">
             <label>Grupo</label>
             <select id="f-grupo" class="form-control" required>
-    <option value="MOTOCICLETA">MOTOCICLETA</option>
-    <option value="CARRO">CARRO</option>
-</select>
+                <option value="MOTOCICLETA">MOTOCICLETA</option>
+                <option value="CARRO">CARRO</option>
+            </select>
         </div>
         
         <div class="form-group">
@@ -437,12 +457,12 @@
 
         <div class="form-group"><label>Nota</label><input type="text" id="f-nota" class="form-control"></div>
         <div class="form-group">
-    <label>Tramitação</label>
-    <select id="f-tramitacao" class="form-control">
-        <option value="TRAMITANDO">TRAMITANDO</option>
-        <option value="FINALIZADO">FINALIZADO</option>
-    </select>
-</div>
+            <label>Tramitação</label>
+            <select id="f-tramitacao" class="form-control">
+                <option value="TRAMITANDO">TRAMITANDO</option>
+                <option value="FINALIZADO">FINALIZADO</option>
+            </select>
+        </div>
         <div id="div-datasaida" class="form-group hidden-field">
             <label>Data Saída</label>
             <input type="date" id="f-datasaida" class="form-control">
@@ -497,18 +517,24 @@
     let isViewOnlyMode = false;
     let base64Image = "";
 
-    // Função auxiliar para garantir que o usuário seja string
+    // FUNÇÃO CRÍTICA: Garantir que o usuário seja sempre uma string simples
     function getUsuarioLogado() {
         let usuario = localStorage.getItem('usuarioLogado');
+        
         if (!usuario) return "";
         
         // Se for string JSON, tenta parsear
-        if (typeof usuario === 'string' && usuario.indexOf('{') !== -1) {
-            try {
-                var obj = JSON.parse(usuario);
-                usuario = obj.usuario || obj.usuário || obj.user || "";
-                localStorage.setItem('usuarioLogado', usuario);
-            } catch(e) {}
+        if (typeof usuario === 'string') {
+            // Verifica se parece JSON
+            if (usuario.trim().startsWith('{') && usuario.includes('usuario')) {
+                try {
+                    var obj = JSON.parse(usuario);
+                    usuario = obj.usuario || obj.usuário || obj.user || "";
+                    localStorage.setItem('usuarioLogado', usuario);
+                } catch(e) {
+                    // Se não conseguir parsear, mantém como está
+                }
+            }
         }
         
         // Se for objeto (caso raro)
@@ -520,14 +546,24 @@
         return usuario;
     }
 
+    // Função para limpar e corrigir o localStorage
+    function corrigirLocalStorage() {
+        let usuario = localStorage.getItem('usuarioLogado');
+        if (usuario && (usuario.includes('{') || typeof usuario === 'object')) {
+            var usuarioCorrigido = getUsuarioLogado();
+            localStorage.setItem('usuarioLogado', usuarioCorrigido);
+            console.log('LocalStorage corrigido para:', usuarioCorrigido);
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('search-input').addEventListener('input', filterListBySearch);
         
         // Corrigir localStorage se necessário
-        getUsuarioLogado();
+        corrigirLocalStorage();
         
         const usuarioLogado = localStorage.getItem('usuarioLogado');
-        if(usuarioLogado && usuarioLogado !== "null" && usuarioLogado !== "undefined"){
+        if(usuarioLogado && usuarioLogado !== "null" && usuarioLogado !== "undefined" && usuarioLogado !== ""){
             document.getElementById('login-screen').style.display = 'none';
             fetchData();
         }
@@ -545,10 +581,10 @@
         window[cb] = function(r){
             toggleLoading(false);
             if(r.status === 'success'){
-                // GARANTIR QUE SALVAMOS APENAS A STRING DO USUÁRIO
+                // GARANTIR QUE SALVAMOS APENAS A STRING DO USUÁRIO (NÃO OBJETO)
                 var usuarioString = r.usuario;
                 if (typeof usuarioString === 'object') {
-                    usuarioString = usuarioString.usuario || usuarioString.usuário || "";
+                    usuarioString = usuarioString.usuario || "";
                 }
                 localStorage.setItem('usuarioLogado', usuarioString);
                 localStorage.setItem('nomeUsuario', r.nome || usuarioString);
@@ -622,8 +658,8 @@
     function limparEIrParaCadastro() {
         limparFormulario();
         document.getElementById('f-dataentrada').value = new Date().toISOString().split('T')[0];
-       document.getElementById('f-tramitacao').value = 'TRAMITANDO';
- isEditingFromRestituir = false;
+        document.getElementById('f-tramitacao').value = 'TRAMITANDO';
+        isEditingFromRestituir = false;
         isEditingFromRestituidos = false;
         isViewOnlyMode = false;
         toggleRestituirFields(false);
@@ -1155,19 +1191,25 @@
             
             card.style.borderLeftColor = corAcao;
             
-            // Extrair nome do usuário corretamente
+            // EXTRAIR NOME DO USUÁRIO CORRETAMENTE
             let nomeUsuario = atv.usuario || '-';
+            
+            // Se for objeto
             if (typeof nomeUsuario === 'object') {
                 nomeUsuario = nomeUsuario.usuario || nomeUsuario.usuário || '-';
             }
-            if (typeof nomeUsuario === 'string' && nomeUsuario.indexOf('{') !== -1) {
+            // Se for string JSON
+            else if (typeof nomeUsuario === 'string' && nomeUsuario.indexOf('{') !== -1) {
                 try {
                     var obj = JSON.parse(nomeUsuario);
                     nomeUsuario = obj.usuario || obj.usuário || '-';
-                } catch(e) {}
+                } catch(e) {
+                    // Mantém o valor original
+                }
             }
             
-            card.innerHTML = `
+            // Construir o HTML com ANTES/DEPOIS
+            let htmlContent = `
                 <p><strong>📅 Data/Hora:</strong> ${formatarDataHoraBR(atv.data_hora)}</p>
                 <p><strong>👤 Usuário:</strong> ${nomeUsuario}</p>
                 <p><strong>⚡ Ação:</strong> <span style="color:${corAcao};">${atv.acao}</span></p>
@@ -1176,22 +1218,39 @@
                 <p><strong>📝 Procedimento:</strong> ${atv.procedimento || '-'}</p>
                 <p><strong>🚗 Placa:</strong> ${atv.placa || '-'}</p>
                 <p><strong>💬 Observação:</strong> ${atv.obs || '-'}</p>
-            ${atv.antes ? `
-            <hr style="margin:10px 0;border-color:#444;">
-            <div style="display:flex; gap:15px; flex-wrap:wrap;">
-                <div style="flex:1; min-width:250px; background:#111; padding:10px; border-radius:10px; border:1px solid #FF6666;">
-                    <h4 style="color:#FF6666; margin-bottom:8px;">📌 ANTES</h4>
-                    <pre style="white-space:pre-wrap; color:white; font-size:12px; font-family:Arial;">${atv.antes}</pre>
-                </div>
-                <div style="flex:1; min-width:250px; background:#111; padding:10px; border-radius:10px; border:1px solid #39FF14;">
-                    <h4 style="color:#39FF14; margin-bottom:8px;">✅ DEPOIS</h4>
-                    <pre style="white-space:pre-wrap; color:white; font-size:12px; font-family:Arial;">${atv.depois}</pre>
-                </div>
-            </div>
-            ` : ''}
             `;
+            
+            // Adicionar ANTES e DEPOIS se existirem
+            if (atv.antes && atv.antes.trim() !== "") {
+                htmlContent += `
+                    <hr style="margin:10px 0;border-color:#444;">
+                    <div class="comparison-container">
+                        <div class="before-box">
+                            <h4 class="before-title">📌 ANTES</h4>
+                            <pre class="pre-content">${escapeHtml(atv.antes)}</pre>
+                        </div>
+                        <div class="after-box">
+                            <h4 class="after-title">✅ DEPOIS</h4>
+                            <pre class="pre-content">${escapeHtml(atv.depois || '')}</pre>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            card.innerHTML = htmlContent;
             container.appendChild(card);
         });
+    }
+    
+    // Função auxiliar para escapar HTML
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 </script>
 </body>
