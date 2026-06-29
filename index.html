@@ -346,25 +346,25 @@
 <div id="loading">Sincronizando com a Base de Dados de NBO...</div>
 
 <header>
-    <h1>🚗 VEÍCULOS UNISP NBO</h1>
+    <h1>🚖 VEÍCULOS UNISP NBO 🛵</h1>
     <div class="nav-buttons">
-        <button class="nav-btn" onclick="logoutSistema()">🚪 SAIR</button>
+        <button class="nav-btn" onclick="logoutSistema()">✖️ SAIR</button>
         <button class="nav-btn" onclick="alterarSenhaUsuario()">🔑 SENHA</button>
         <button class="nav-btn active" onclick="switchPage('dashboard')">📊 Dashboard</button>
         <button class="nav-btn" onclick="switchPage('atividade')">📋 ATIVIDADES</button>
         <button class="nav-btn btn-cadastrar-destaque" onclick="limparEIrParaCadastro()">➕ CADASTRAR</button>
-        <button class="nav-btn counter-badge">🚚 Total: <span id="lbl-total">0</span></button>
+        <button class="nav-btn counter-badge">🚘🚲 Total: <span id="lbl-total">0</span></button>
     </div>
 </header>
 
 <div id="page-dashboard" class="page active">
     <div class="cards-grid">
         <div class="card" onclick="openList('MOTO', 'COM', 'PENDENTE')">
-            <h3>🏍️ MOTOCICLETAS COM PLACA</h3>
+            <h3>🛵 MOTOCICLETAS COM PLACA</h3>
             <div class="value" id="card-moto-com">0</div>
         </div>
         <div class="card" onclick="openList('MOTO', 'SEM', 'PENDENTE')">
-            <h3>🏍️ MOTOCICLETAS SEM PLACA</h3>
+            <h3>🛵 MOTOCICLETAS SEM PLACA</h3>
             <div class="value" id="card-moto-sem">0</div>
         </div>
         <div class="card" style="display:none;" onclick="openList('MOTONETA', 'COM', 'PENDENTE')">
@@ -376,15 +376,15 @@
             <div class="value" id="card-motoneta-sem">0</div>
         </div>
         <div class="card" onclick="openList('CARRO', 'COM', 'PENDENTE')">
-            <h3>🚗 CARROS COM PLACA</h3>
+            <h3>🚕 CARROS COM PLACA</h3>
             <div class="value" id="card-carro-com">0</div>
         </div>
         <div class="card" onclick="openList('CARRO', 'SEM', 'PENDENTE')">
-            <h3>🚗 CARROS SEM PLACA</h3>
+            <h3>🚕 CARROS SEM PLACA</h3>
             <div class="value" id="card-carro-sem">0</div>
         </div>
         <div class="card" onclick="acessarRestituicao()">
-            <h3>📋 RESTITUIR VEÍCULO</h3>
+            <h3>🏍️💨 RESTITUIR VEÍCULO</h3>
             <div class="value" id="card-restituir-p">0</div>
         </div>
         <div class="card" onclick="openList('ALL', 'ALL', 'RESTITUIDO')">
@@ -392,11 +392,11 @@
             <div class="value" id="card-restituidos-total">0</div>
         </div>
         <div class="card" onclick="openList('PROC_SEM_BO', 'ALL', 'PENDENTE')">
-            <h3>📄 SEM BO</h3>
+            <h3>🧐 SEM BO</h3>
             <div class="value" id="card-sem-bo">0</div>
         </div>
         <div class="card" onclick="openList('PROC_COM_BO', 'ALL', 'PENDENTE')">
-            <h3>📄 COM BO</h3>
+            <h3>👍🏻 COM BO</h3>
             <div class="value" id="card-com-bo">0</div>
         </div>
         <div class="card" onclick="openList('TRAMITANDO', 'ALL', 'TRAMITACAO')">
